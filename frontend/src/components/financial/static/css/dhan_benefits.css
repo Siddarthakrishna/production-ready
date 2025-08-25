@@ -1,0 +1,363 @@
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@100;200;300;400;500;600;700;800;900&display=swap");
+* {
+  font-family: "Outfit", sans-serif;
+  box-sizing: border-box;
+}
+.pa50 {
+  padding-top: 50px;
+  padding-bottom: 35px;
+}
+.container-fluid {
+  padding-left: 30px !important;
+  padding-right: 30px !important;
+  max-width: 1550px !important;
+  margin: auto;
+}
+.row {
+  --bs-gutter-x: 1.5rem;
+  --bs-gutter-y: 0;
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: calc(var(--bs-gutter-y) * -1);
+  margin-right: calc(var(--bs-gutter-x) * -0.5);
+  margin-left: calc(var(--bs-gutter-x) * -0.5);
+}
+.hide {
+  text-decoration: none;
+}
+.greenlinelarge {
+  height: 85px;
+  width: 4px;
+  min-width: 5px;
+  background-color: #8d96de;
+  border-radius: 5px;
+  margin-right: 12px;
+}
+.greenlinelarge_1 {
+  height: 55px;
+  width: 4px;
+  min-width: 5px;
+  background-color: #8d96de;
+  border-radius: 5px;
+  margin-right: 12px;
+}
+@media (max-width: 1200px) {
+  .greenlinelarge_1 {
+    height: 100px;
+  }
+  .greenlinelarge_2 {
+    height: 50px;
+  }
+}
+.graay {
+  color: gray;
+  line-height: 30px !important;
+}
+.f24 {
+  font-size: 24px !important;
+}
+.head3 {
+  font-weight: 400;
+}
+.pato5 {
+  padding-top: 10px !important;
+}
+.headings {
+  font-size: 44px !important;
+  font-weight: 700 !important;
+  color: #363636 !important;
+}
+.headings_1 {
+  font-size: 34px !important;
+  font-weight: 700 !important;
+  color: #363636 !important;
+}
+.blackk1 {
+  color: black;
+}
+.left {
+  text-align: left !important;
+}
+.w-90 {
+  width: 90%;
+}
+.pad-right-mob {
+  padding-right: 0px;
+}
+.db {
+  font-size: 16px;
+  color: #666666 !important;
+}
+.showing {
+  display: none !important;
+}
+.w3-display-middle {
+  position: absolute;
+  top: 35%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+}
+.loss {
+  color: #e15858 !important;
+}
+.headsty {
+  font-size: 18px !important;
+  color: #4b4b4b !important;
+  font-weight: 700 !important;
+  margin-left: 0px !important;
+}
+.headsty1 {
+  font-size: 16px !important;
+  color: #666666 !important;
+  font-weight: 300 !important;
+  margin-top: -10px !important;
+}
+.space {
+  margin-top: 0px;
+}
+
+@media (min-width: 576px) {
+  .space1 {
+    margin-top: 15px !important;
+  }
+}
+
+@media (max-width: 1195px) {
+  #Heading {
+    font-size: 40px !important;
+  }
+  #dhan_logo {
+    width: 150px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  #Heading {
+    font-size: 30px !important;
+  }
+  #dhan_logo {
+    width: 120px !important;
+  }
+  #Tci_logo {
+    width: 80px !important;
+  }
+  #dhan_logo_col {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+  .pa52 {
+    margin-left: 2% !important;
+    max-width: 95% !important;
+    margin-bottom: 15px !important;
+  }
+}
+
+.angel_banner_img {
+  border-radius: 12px;
+}
+
+.angel_banner {
+  border-radius: 12px !important;
+  border: 1px solid #dfdcdc !important;
+  cursor: pointer;
+  transition: 0.8s;
+  box-shadow: 5px 5px 5px white;
+}
+
+.angel_banner:hover {
+  border: 1px solid #b3adad;
+  box-shadow: 5px 5px 5px #dcc8f1;
+}
+
+/* -------------
+For Mobile View 
+------------- */
+
+@media only screen and (max-width: 600px) {
+  .pa50 {
+    padding-top: 25px !important;
+  }
+  .heading_container-fluid {
+    padding-left: 7% !important;
+    padding-right: 10% !important;
+  }
+  .hide {
+    display: none !important;
+  }
+  .nopad-mob {
+    padding-left: 0% !important;
+    padding-right: 0% !important;
+  }
+  .greenlinelarge {
+    height: 70px !important;
+  }
+  .ma0 {
+    margin: 0px !important;
+  }
+  .f24 {
+    font-size: 18px !important;
+  }
+  .headings {
+    font-size: 28px !important;
+    font-weight: 700 !important;
+    color: rgb(54, 54, 54) !important;
+  }
+  .pato5 {
+    padding-top: 10px !important;
+  }
+  .db {
+    font-size: 14px !important;
+    color: rgb(119, 119, 119) !important;
+  }
+  .pad-right-mob {
+    position: relative;
+    right: 15px !important;
+  }
+  .showing {
+    display: inline !important;
+  }
+  .mobile_video {
+    position: relative !important;
+  }
+  .w3-display-middle {
+    position: absolute;
+    top: 1%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  .coming-down-always {
+    margin-top: 30px !important;
+  }
+  .logo-text {
+    position: relative !important;
+    right: 15px !important;
+  }
+  .headsty {
+    font-size: 18px !important;
+    color: rgb(75, 75, 75) !important;
+    font-weight: 700 !important;
+    margin-left: 0px !important;
+  }
+  .headsty1 {
+    font-size: 16px !important;
+    color: rgb(102, 102, 102) !important;
+    font-weight: 300 !important;
+    margin-top: -10px !important;
+  }
+  .space {
+    margin-top: 20px !important;
+  }
+  .logo-home {
+    width: 100% !important;
+  }
+  .space-mob {
+    margin-top: 10px !important;
+  }
+}
+@media (max-width: 585px) {
+  .headings_1 {
+    font-size: 29px !important;
+  }
+  .greenlinelarge_1 {
+    height: 85px;
+  }
+  .greenlinelarge_2 {
+    height: 50px;
+  }
+  ul li,
+  ol li {
+    font-size: large !important;
+    line-height: 30px !important;
+  }
+  .ol_li_row {
+    margin-left: 25px !important;
+  }
+}
+@media only screen and (max-width: 500px) {
+  .coming-down-always {
+    margin-top: 10px !important;
+    padding-top: 10px !important;
+  }
+  #Tci_logo {
+    width: 50px !important;
+  }
+  #Heading {
+    font-size: 20px !important;
+  }
+  #dhan_logo {
+    width: 90px !important;
+  }
+  .heading_container-fluid {
+    padding-left: 4% !important;
+  }
+  .pa50 {
+    padding-bottom: 0px;
+  }
+  .greenlinelarge_1 {
+    height: 55px;
+  }
+  .greenlinelarge_2 {
+    height: 30px;
+  }
+  .headings_1 {
+    font-size: 18px !important;
+    font-weight: 700 !important;
+    color: #363636 !important;
+  }
+  #banner_image div {
+    font-size: large !important;
+    padding-bottom: 10px !important;
+  }
+  .btn-square {
+    width: 38px !important;
+    height: 38px !important;
+  }
+}
+
+@media only screen and (max-width: 430px) {
+  #Heading_col {
+    padding-left: 5px !important;
+    padding-right: 0 !important;
+  }
+  #dhan_logo_col {
+    padding-left: 5px !important;
+    padding-right: 0 !important;
+  }
+  .Heading_Row {
+    margin-bottom: 10px !important;
+  }
+  ul li,
+  ol li {
+    font-size: medium !important;
+    line-height: 30px !important;
+  }
+}
+
+ul li,
+ol li {
+  font-size: x-large;
+  line-height: 40px;
+  color: #666666;
+}
+
+.back-to-top-1 {
+  background: #8d96de;
+  height: 50px;
+  border-radius: 100% !important;
+  border: none;
+}
+
+.btn-square {
+  width: 48px;
+  height: 48px;
+}
+
+.btn-square {
+  padding: 19px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: normal;
+  border-radius: 2px;
+}
