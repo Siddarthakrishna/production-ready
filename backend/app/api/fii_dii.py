@@ -1,5 +1,5 @@
 from datetime import date
-from typing import Optional
+from typing import Optional, List, Dict
 from fastapi import APIRouter, Query
 from backend.app.services import fii_dii_service as svc
 from backend.app.api.schemas import FiiDiiNet, FiiDiiBreakdown
@@ -15,3 +15,12 @@ def fii_dii_net(on: Optional[date] = Query(default=None)):
 @router.get("/breakdown", response_model=FiiDiiBreakdown)
 def fii_dii_breakdown(range_: str = Query("1M", alias="range", pattern=r"^(1W|1M|3M|6M|1Y)$")):
     return svc.get_breakdown(range_)
+
+
+@router.post("/fetch_fii_dii_data")
+def fetch_fii_dii_data() -> List[Dict]:
+    """
+    Fetch FII/DII data in unified param format
+    Compatible with frontend scanner.js expectations
+    """
+    return svc.get_fii_dii_data_unified()

@@ -1,3 +1,16 @@
+/**
+ * Swing Center.js - Unified Param System Implementation
+ * 
+ * This file uses the unified param format:
+ * - Symbol: Stock/Index identifier
+ * - param_0: Advance percentage (swing context) / LTP
+ * - param_1: Decline percentage (swing context) / Previous Close
+ * - param_2: % Change from previous close - used for heatmap coloring
+ * - param_3: Momentum/swing strength - used for swing visualization
+ * - param_4: DateTime (YYYY-MM-DD HH:mm:ss)
+ * 
+ * Swing charts use param_3 for momentum bars, heatmaps use param_2 for color scale.
+ */
 
 route_1 = "/study-data"         // PIE DONUT
 route_2 = "/adv-dec"            // SEMI CIRCLE

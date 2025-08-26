@@ -1,3 +1,16 @@
+/**
+ * Pro Setup.js - Unified Param System Implementation
+ * 
+ * This file uses the unified param format:
+ * - Symbol: Stock/Index identifier
+ * - param_0: Last Trading Price (LTP) - used for bar chart Y-axis
+ * - param_1: Previous Close Price
+ * - param_2: % Change from previous close
+ * - param_3: R-Factor (momentum / relative factor)
+ * - param_4: DateTime (YYYY-MM-DD HH:mm:ss)
+ * 
+ * Bar charts use param_0 for price/momentum visualization as per unified standards.
+ */
 
 route_1 = "/study-data"         // For Chart
 route_2 = "/study-symbol"       // For DataTable

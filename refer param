@@ -1,0 +1,198 @@
+Sharada Research – Unified Param System (Final)
+
+This document defines the unified param structure for the Sharada Research project.
+It applies to database, backend, frontend, and all visualizations (bar charts, heatmaps, tables).
+
+🔑 Unified Param Dictionary
+
+Every dataset row must follow this structure:
+
+Field	Description
+Symbol	Stock / Index identifier (e.g. NIFTY, RELIANCE)
+param_0	Last Trading Price (LTP)
+param_1	Previous Close Price
+param_2	% Change from previous close
+param_3	R-Factor (momentum / relative factor)
+param_4	DateTime (YYYY-MM-DD HH:mm:ss)
+
+✅ Important Rules
+
+param_4 always stores both date and time together.
+
+Same meaning applies across all frontend pages, backend endpoints, and DB tables.
+
+🗄 Database (Postgres Schema)
+CREATE TABLE market_data (
+    id SERIAL PRIMARY KEY,
+    symbol VARCHAR(50) NOT NULL,
+    param_0 NUMERIC,   -- LTP
+    param_1 NUMERIC,   -- Previous Close
+    param_2 NUMERIC,   -- % Change
+    param_3 NUMERIC,   -- R-Factor
+    param_4 TIMESTAMP  -- Date + Time
+);
+
+
+Deprecate old descriptive columns (ltp, prev_close, %chg, etc.).
+
+Normalize all incoming data into param format before storage.
+
+⚙ Backend Standards
+
+API JSON Response
+
+{
+  "Symbol": "RELIANCE",
+  "param_0": 2780.50,
+  "param_1": 2765.20,
+  "param_2": 0.55,
+  "param_3": 1.12,
+  "param_4": "2025-08-26 10:15:30"
+}
+
+
+Normalization Utility
+
+Create a function normalizeToParams(rawData) that converts provider fields into the param structure.
+
+Example mapping:
+
+last_trade_price → param_0
+
+prev_close → param_1
+
+pct_change → param_2
+
+rfactor → param_3
+
+timestamp → param_4
+
+Endpoints
+
+All API routes (/api/prosetup, /api/market-depth, etc.) must send normalized param JSON.
+
+🎨 Frontend Standards
+General Rules
+
+All DataTables and charts must consume param_0 … param_4.
+
+No frontend should directly map raw provider field names.
+
+Tables
+
+Example DataTable config for every page:
+
+columns: [
+  { data: 'Symbol' },
+  { data: 'param_0' }, // LTP
+  { data: 'param_1' }, // Prev Close
+  { data: 'param_2' }, // % Change
+  { data: 'param_3' }, // R-Factor
+  { data: 'param_4' }  // DateTime
+]
+
+Charts / Visualizations
+
+Bar Charts (price plots, depth, swing, setup):
+Use param_0 (LTP) as the Y-axis value.
+
+y: value.param_0
+
+
+Heatmaps (sectorial flow, money flux):
+Use param_2 (% Change) for heatmap coloring (green/red scale).
+
+colorValue: value.param_2
+
+
+Momentum / Swing Strength Bars:
+Use param_3 (R-Factor) for swing/momentum visualization.
+
+height: value.param_3
+
+
+Date & Time labels:
+Always use param_4.
+
+📊 File-by-File Migration Notes
+File	Current Use	Visualization	Fix Required
+market_depth.js	value.param_0 as y	Bar chart (price plot)	Keep as LTP (param_0)
+pro_setup.js	value.param_0	Bar chart (price/momentum)	Keep as LTP; shift % Change to param_2
+scanner.js	Array indexes [0], [1]	DataTable	🔄 Refactor into param JSON (param_0..4)
+sectorial_flow.js	param_0..3	Heatmap / sector bars	Map heatmap color → param_2; price bars → param_0
+swing_center.js	param_0..3	Swing bar/heatmap	LTP = param_0; % Change heatmap = param_2; momentum = param_3
+money_flux.js	param_0..3	Heatmap (capital flow)	Price axis = param_0; color scale = param_2; momentum = param_3
+index_analysis.js	(similar pattern)	Index bar/heatmap	Align with unified mapping
+🛠 Migration Checklist
+Backend
+
+ Add normalizeToParams() util.
+
+ Update all endpoints to return param JSON.
+
+ Deprecate descriptive keys.
+
+Database
+
+ Migrate schema to param_0..4.
+
+ Map old fields (ltp, volume, etc.) → unified params.
+
+Frontend
+
+ Update all DataTables to use param columns.
+
+ Fix scanner.js to param JSON instead of array indexes.
+
+ Check all charts:
+
+param_0 for bar height (price).
+
+param_2 for heatmap coloring.
+
+param_3 for momentum.
+
+param_4 for timestamps.
+
+QA
+
+ Regression test tables and charts.
+
+ Validate consistent rendering across all pages.
+
+🔄 Data Flow
+flowchart LR
+    DB[(Postgres: param_0..param_4)] --> BE[Backend Normalizer]
+    BE --> FE[Frontend Pages]
+
+    subgraph DB
+        P0[param_0: LTP]  
+        P1[param_1: Prev Close]  
+        P2[param_2: % Change]  
+        P3[param_3: R-Factor]  
+        P4[param_4: DateTime]  
+    end
+
+    subgraph FE
+        Pro[pro_setup.js]  
+        MD[market_depth.js]  
+        Swing[swing_center.js]  
+        Sector[sectorial_flow.js]  
+        MF[money_flux.js]  
+        Scan[scanner.js]  
+        Index[index_analysis.js]  
+    end
+
+✅ End Result
+
+All pages aligned with one param dictionary.
+
+Bar charts → use param_0.
+
+Heatmaps → use param_2.
+
+Momentum bars → use param_3.
+
+Tables → show all params consistently.
+
+Future-proof → new fields become param_5, param_6, etc.

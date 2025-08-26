@@ -1,3 +1,16 @@
+/**
+ * Sectorial Flow.js - Unified Param System Implementation
+ * 
+ * This file uses the unified param format:
+ * - Symbol: Stock/Index identifier  
+ * - param_0: Last Trading Price (LTP) - used for bar chart Y-axis
+ * - param_1: Previous Close Price
+ * - param_2: % Change from previous close - used for heatmap coloring
+ * - param_3: R-Factor (momentum / relative factor)
+ * - param_4: DateTime (YYYY-MM-DD HH:mm:ss)
+ * 
+ * Bar charts use param_0 for price bars, heatmaps use param_2 for color scale.
+ */
 
 route = "/study-data"
 
@@ -182,14 +195,14 @@ function updateMarketBreadthData() {
             
             // Prepare table data
             const tableData = response.data.map(item => {
-                const pctChange = parseFloat(item.param_0) || 0;
+                const pctChange = parseFloat(item.param_2) || 0; // Use param_2 for % change
                 let statusClass = 'text-muted';
                 if (pctChange > 0) statusClass = 'text-success';
                 else if (pctChange < 0) statusClass = 'text-danger';
                 
                 return [
                     item.Symbol || '-',
-                    item.LTP || '-',
+                    item.param_0 || '-', // LTP
                     `<span class="${statusClass}">${pctChange.toFixed(2)}%</span>`,
                     pctChange > 0 ? 'Advancing' : pctChange < 0 ? 'Declining' : 'Unchanged'
                 ];

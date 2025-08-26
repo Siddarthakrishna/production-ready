@@ -76,6 +76,8 @@ try:
     from backend.app.api.mock_data import router as mock_data_router
     from backend.app.api.ollama import router as ollama_router
     from backend.app.api.fyers import router as fyers_router
+    # Import the new unified study API
+    from backend.app.api.unified_study import router as unified_study_router
 
     # Include the routers
     api.include_router(index_router)
@@ -91,6 +93,8 @@ try:
     api.include_router(mock_data_router)
     api.include_router(ollama_router)
     api.include_router(fyers_router)
+    # Include the unified study API for param format
+    api.include_router(unified_study_router)
 
     logger.info("Financial application routers successfully included")
 except Exception as e:

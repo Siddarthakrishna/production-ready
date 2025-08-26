@@ -1,3 +1,17 @@
+/**
+ * Money Flux.js - Unified Param System Implementation
+ * 
+ * This file uses the unified param format:
+ * - Symbol: Stock/Index identifier
+ * - param_0: Last Trading Price (LTP) - used for price axis in charts
+ * - param_1: Previous Close Price
+ * - param_2: % Change from previous close - used for standard heatmap color scale
+ * - param_3: Money flux intensity/momentum
+ * - param_4: DateTime (YYYY-MM-DD HH:mm:ss)
+ * 
+ * Note: In money flux context, param_0 is used for flux value visualization.
+ * Heatmaps may use param_0 for flux intensity or param_2 for standard % change coloring.
+ */
 
 route = "http://localhost:8000/api/money_flux";
 legacy_route = "http://localhost:8000/api/moneyflux";

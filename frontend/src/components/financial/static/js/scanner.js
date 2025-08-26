@@ -1,3 +1,16 @@
+/**
+ * Scanner.js - Unified Param System Implementation
+ * 
+ * This file has been updated to use the unified param format:
+ * - Symbol: Stock/Index identifier
+ * - param_0: Last Trading Price (LTP)
+ * - param_1: Previous Close Price (not used in scanner data)
+ * - param_2: Volume (HD) / Avg Delivery % (DSP)
+ * - param_3: Avg Delivery % (HD) / Increase in Delivery (DSP)
+ * - param_4: DateTime (YYYY-MM-DD HH:mm:ss)
+ * 
+ * Legacy array format is automatically converted to param format for consistency.
+ */
 
 route = '/calcApi2'
 
@@ -35,39 +48,45 @@ const API_call = () => {
             DS_data = JSON.parse(JSON.stringify(data));
             if (scan_value == '_hd_data_') {
                 $('#scanner_datatable').removeClass('dataTableSc dataTableSc_dsp').addClass('dataTableSc')
-                for (var i = 0; i < DS_data.length; i++) {
-                    // data pre preprocessing
-                    let Name = DS_data[i][0];
-                    let LTP = DS_data[i][1];
-                    let Volume = DS_data[i][2];
-                    let Delivery_percentage = DS_data[i][3];
-                    let ts = DS_data[i][4];
-                    let Avg_delivery_percentage = DS_data[i][5];
-                    DS_data[i][0] = Name
-                    DS_data[i][1] = LTP;
-                    DS_data[i][2] = Volume;
-                    DS_data[i][3] = parseFloat(Avg_delivery_percentage).toFixed(2);
-                    DS_data[i][4] = `${Delivery_percentage} <progress max=100 value=${Delivery_percentage}>`;
-
-                    $('#updated_date').text(`${moment.unix(ts).format('ddd MMM DD, YYYY')} IST`)
+                // Convert array data to unified param format if needed
+                if (DS_data.length > 0 && Array.isArray(DS_data[0])) {
+                    DS_data = DS_data.map(row => ({
+                        Symbol: row[0],
+                        param_0: parseFloat(row[1]) || 0, // LTP
+                        param_1: 0, // Previous Close (not available in scanner)
+                        param_2: parseFloat(row[2]) || 0, // Volume as param_2
+                        param_3: parseFloat(row[5]) || 0, // Avg delivery percentage as param_3
+                        param_4: moment.unix(row[4]).format('YYYY-MM-DD HH:mm:ss'), // DateTime
+                        delivery_percentage: parseFloat(row[3]) || 0 // Keep for progress bar
+                    }));
+                }
+                // Update timestamp display
+                if (DS_data.length > 0) {
+                    let displayTime = DS_data[0].param_4 ? 
+                        moment(DS_data[0].param_4).format('ddd MMM DD, YYYY') : 
+                        moment().format('ddd MMM DD, YYYY');
+                    $('#updated_date').text(`${displayTime} IST`);
                 }
             } else if (scan_value == '_dsp_data_') {
                 $('#scanner_datatable').removeClass('dataTableSc dataTableSc_dsp').addClass('dataTableSc_dsp')
-                for (var i = 0; i < DS_data.length; i++) {
-                    // data pre preprocessing
-                    let Name = DS_data[i][0];
-                    let LTP = DS_data[i][1];
-                    let Delivery_percentage = DS_data[i][2];
-                    let Increase_in_Delivery = DS_data[i][3];
-                    let ts = DS_data[i][4];
-                    let Avg_delivery_percentage = DS_data[i][5];
-                    DS_data[i][0] = Name
-                    DS_data[i][1] = LTP;
-                    DS_data[i][2] = parseFloat(Avg_delivery_percentage).toFixed(2);
-                    DS_data[i][3] = `${Delivery_percentage} <progress max=100 value=${Delivery_percentage}>`;
-                    DS_data[i][4] = Increase_in_Delivery;
-
-                    $('#updated_date').text(`${moment.unix(ts).format('ddd MMM DD, YYYY')} IST`)
+                // Convert array data to unified param format if needed
+                if (DS_data.length > 0 && Array.isArray(DS_data[0])) {
+                    DS_data = DS_data.map(row => ({
+                        Symbol: row[0],
+                        param_0: parseFloat(row[1]) || 0, // LTP
+                        param_1: 0, // Previous Close (not available in scanner)
+                        param_2: parseFloat(row[5]).toFixed(2) || '0.00', // Avg delivery percentage as param_2
+                        param_3: parseFloat(row[3]) || 0, // Increase in delivery as param_3
+                        param_4: moment.unix(row[4]).format('YYYY-MM-DD HH:mm:ss'), // DateTime
+                        delivery_percentage: parseFloat(row[2]) || 0 // Keep for progress bar
+                    }));
+                }
+                // Update timestamp display
+                if (DS_data.length > 0) {
+                    let displayTime = DS_data[0].param_4 ? 
+                        moment(DS_data[0].param_4).format('ddd MMM DD, YYYY') : 
+                        moment().format('ddd MMM DD, YYYY');
+                    $('#updated_date').text(`${displayTime} IST`);
                 }
             }
 
@@ -89,7 +108,39 @@ const API_call = () => {
                         pageLength: 50,
                         info: false,
                         scrollX: true,
-                        ordering: false
+                        ordering: false,
+                        columns: [
+                            { data: 'Symbol' },
+                            { data: 'param_0' }, // LTP
+                            { 
+                                data: scan_value == '_hd_data_' ? 'param_2' : 'param_2', // Volume or Avg Del %
+                                render: function(data, type, row) {
+                                    return scan_value == '_hd_data_' ? data : parseFloat(data).toFixed(2);
+                                }
+                            },
+                            { 
+                                data: scan_value == '_hd_data_' ? 'param_3' : null, // Avg Del % or Progress bar
+                                render: function(data, type, row) {
+                                    if (scan_value == '_hd_data_') {
+                                        return parseFloat(data).toFixed(2);
+                                    } else {
+                                        let del_pct = row.delivery_percentage || 0;
+                                        return `${del_pct} <progress max=100 value=${del_pct}>`;
+                                    }
+                                }
+                            },
+                            { 
+                                data: scan_value == '_hd_data_' ? null : 'param_3', // Progress bar or Increase in Delivery
+                                render: function(data, type, row) {
+                                    if (scan_value == '_hd_data_') {
+                                        let del_pct = row.delivery_percentage || 0;
+                                        return `${del_pct} <progress max=100 value=${del_pct}>`;
+                                    } else {
+                                        return data;
+                                    }
+                                }
+                            }
+                        ]
                     });
                 }
                 datatable.clear();

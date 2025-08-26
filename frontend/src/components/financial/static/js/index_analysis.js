@@ -1,3 +1,16 @@
+/**
+ * Index Analysis.js - Unified Param System Implementation
+ * 
+ * This file uses the unified param format:
+ * - Symbol: Stock/Index identifier
+ * - param_0: Index value/price - used for price visualization
+ * - param_1: Previous Close Price
+ * - param_2: % Change from previous close - used for heatmap coloring
+ * - param_3: Volatility/momentum indicator
+ * - param_4: DateTime (YYYY-MM-DD HH:mm:ss)
+ * 
+ * Index charts use param_0 for price bars, heatmaps use param_2 for color scale.
+ */
 
 route = "http://localhost:8000/api/index"
 legacy_route = "http://localhost:8000/api/index_analysis"
