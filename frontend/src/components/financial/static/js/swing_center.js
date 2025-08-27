@@ -1,28 +1,263 @@
 /**
- * Swing Center.js - Unified Param System Implementation
+ * Swing Center - Enhanced Implementation
  * 
- * This file uses the unified param format:
+ * Unified Param System:
  * - Symbol: Stock/Index identifier
  * - param_0: Advance percentage (swing context) / LTP
  * - param_1: Decline percentage (swing context) / Previous Close
  * - param_2: % Change from previous close - used for heatmap coloring
  * - param_3: Momentum/swing strength - used for swing visualization
  * - param_4: DateTime (YYYY-MM-DD HH:mm:ss)
- * 
- * Swing charts use param_3 for momentum bars, heatmaps use param_2 for color scale.
  */
 
-route_1 = "/study-data"         // PIE DONUT
-route_2 = "/adv-dec"            // SEMI CIRCLE
-route_3 = "/study-symbol"       // DATA TABLE
+// Configuration
+const CONFIG = {
+    api: {
+        baseUrl: '/api',
+        endpoints: {
+            studyData: '/study/data',
+            advDec: '/adv-dec',
+            swing: '/swing'
+        },
+        defaultLimit: 50
+    },
+    charts: {
+        radialBar: {
+            height: 240,
+            offsetY: -20,
+            sparkline: { enabled: true },
+            plotOptions: {
+                radialBar: {
+                    startAngle: -90,
+                    endAngle: 90,
+                    track: {
+                        background: '#343260',
+                        strokeWidth: '90%',
+                        margin: 5,
+                        dropShadow: {
+                            enabled: false,
+                            top: 2,
+                            left: 0,
+                            color: '#fff',
+                            opacity: 1,
+                            blur: 2
+                        }
+                    },
+                    dataLabels: {
+                        name: { show: false },
+                        value: { 
+                            offsetY: -2, 
+                            fontSize: '18px', 
+                            color: '#fff' 
+                        }
+                    },
+                    hollow: {
+                        margin: 15,
+                        size: "65%"
+                    }
+                }
+            },
+            grid: {
+                padding: { top: 10 }
+            },
+            fill: { background: '#6c63ff' },
+            labels: ['Average Results']
+        }
+    }
+};
 
-// const update_time = () => {
-//     $.getJSON(root_1 + '/current?type=servertime', function (response) {
-//         response = response.split(":");
-//         $('.dtime').html(response[0] + ':' + (response[1]));
-//     });
-// }
+// State management
+const state = {
+    niftyData: null,
+    foData: null,
+    loading: {
+        nifty: false,
+        fo: false
+    },
+    errors: {
+        nifty: null,
+        fo: null
+    }
+};
 
+// DOM Elements
+const elements = {
+    niftyChart: document.querySelector("#nftadgrouthp"),
+    foChart: document.querySelector("#fotadgrouthp"),
+    niftySpan: document.querySelector("#nftadgrouthspan"),
+    foSpan: document.querySelector("#fotadgrouthspan")
+};
+
+// Initialize charts
+const niftyChart = new ApexCharts(
+    elements.niftyChart, 
+    { ...CONFIG.charts.radialBar, series: [0] }
+);
+
+const foChart = new ApexCharts(
+    elements.foChart,
+    { ...CONFIG.charts.radialBar, series: [0] }
+);
+
+/**
+ * Fetch advance/decline data for a market
+ * @param {string} market - Market identifier (NIFTY or FO)
+ * @returns {Promise<Object>} Market data
+ */
+const fetchAdvanceDeclineData = async (market) => {
+    try {
+        state.loading[market.toLowerCase()] = true;
+        const response = await fetch(`${CONFIG.api.baseUrl}${CONFIG.api.endpoints.advDec}/${market}`);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        return await response.json();
+    } catch (error) {
+        console.error(`Error fetching ${market} data:`, error);
+        state.errors[market.toLowerCase()] = error.message;
+        throw error;
+    } finally {
+        state.loading[market.toLowerCase()] = false;
+    }
+};
+
+/**
+ * Update chart with market data
+ * @param {string} market - Market identifier (nifty or fo)
+ * @param {Object} data - Market data
+ */
+const updateMarketChart = (market, data) => {
+    if (!data?.data?.length) return;
+    
+    const marketData = data.data[0];
+    const isAdvance = marketData.param_0 > 0;
+    const value = isAdvance ? marketData.param_0 : marketData.param_1;
+    const label = isAdvance ? 'Advance' : 'Decline';
+    
+    // Update chart data
+    const chart = market === 'nifty' ? niftyChart : foChart;
+    chart.updateSeries([value]);
+    
+    // Update DOM
+    const container = market === 'nifty' ? elements.niftyChart : elements.foChart;
+    const span = market === 'nifty' ? elements.niftySpan : elements.foSpan;
+    
+    container.innerHTML = `
+        <div id="progress-bar" class="progress-bar">
+            <div class="left"></div>
+            <div class="right"><div class="back"></div></div>
+            <div class="barOverflow"><div class="bar"></div></div>
+            <span id="${market}adgrouthbar">${value.toFixed(2)}</span>% 
+            <br> ${label} Growth
+        </div>
+    `;
+    
+    if (span) {
+        span.innerHTML = `<span></span> ${label} % Growth from Yest. Close`;
+    }
+};
+
+/**
+ * Initialize data tables
+ */
+const initializeDataTables = () => {
+    // Configure DataTables error handling
+    $.fn.dataTable.ext.errMode = 'none';
+    
+    // Example table initialization
+    $('.dataTableSw').DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: `${CONFIG.api.baseUrl}${CONFIG.api.endpoints.swing}`,
+            dataSrc: 'data'
+        },
+        columns: [
+            { data: 'symbol' },
+            { data: 'swing_type' },
+            { 
+                data: 'swing_level',
+                render: (data) => data ? parseFloat(data).toFixed(2) : 'N/A'
+            },
+            { 
+                data: 'detected_date',
+                render: (data) => data ? new Date(data).toLocaleString() : 'N/A'
+            },
+            { 
+                data: 'direction',
+                render: (data) => 
+                    `<span class="badge ${data === 'up' ? 'bg-success' : 'bg-danger'}">
+                        ${data.toUpperCase()}
+                    </span>`
+            }
+        ],
+        order: [[3, 'desc']],
+        error: (error) => {
+            console.error('DataTables error:', error);
+            // Show error message to user
+        }
+    });
+};
+
+/**
+ * Initialize the application
+ */
+const init = async () => {
+    try {
+        // Initialize charts
+        await Promise.all([niftyChart.render(), foChart.render()]);
+        
+        // Load initial data
+        const [niftyData, foData] = await Promise.all([
+            fetchAdvanceDeclineData('NIFTY'),
+            fetchAdvanceDeclineData('FO')
+        ]);
+        
+        // Update UI with data
+        updateMarketChart('nifty', niftyData);
+        updateMarketChart('fo', foData);
+        
+        // Initialize data tables
+        initializeDataTables();
+        
+        // Set up periodic refresh (every 30 seconds)
+        setInterval(async () => {
+            try {
+                const [newNiftyData, newFoData] = await Promise.all([
+                    fetchAdvanceDeclineData('NIFTY'),
+                    fetchAdvanceDeclineData('FO')
+                ]);
+                
+                updateMarketChart('nifty', newNiftyData);
+                updateMarketChart('fo', newFoData);
+            } catch (error) {
+                console.error('Error refreshing data:', error);
+            }
+        }, 30000);
+        
+    } catch (error) {
+        console.error('Initialization error:', error);
+        // Show error message to user
+    }
+};
+
+// Start the application when the DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+} else {
+    init();
+}
+
+// Export for testing
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        fetchAdvanceDeclineData,
+        updateMarketChart,
+        initializeDataTables
+    };
+}
 
 // semichart.js
 

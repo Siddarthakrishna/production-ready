@@ -1,104 +1,166 @@
 """
 Swing service for handling swing-related operations.
-Provides functionality for swing center data retrieval and analysis.
 """
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, Optional, Tuple
+from datetime import datetime
+from sqlalchemy import desc, func, and_
+from sqlalchemy.orm import Session
+from fastapi import HTTPException, status
+
 from backend.app.db.connection import db_session
 from backend.app.db.models import SwingCentre
-from sqlalchemy import desc, func
+from backend.app.core.logger import get_logger
 
+logger = get_logger(__name__)
 
-def get_swings(limit: int = 200) -> Dict[str, Any]:
+def get_swings(limit: int = 200, offset: int = 0) -> Dict[str, Any]:
     """
-    Get swing data with limit.
+    Get paginated swing data.
     
     Args:
-        limit: Maximum number of records to return
+        limit: Maximum number of records to return (1-500)
+        offset: Number of records to skip for pagination
         
     Returns:
-        Dictionary containing swing data
+        Dictionary containing swing data and pagination info
+        
+    Raises:
+        HTTPException: If there's an error processing the request
     """
     try:
+        if not (1 <= limit <= 500):
+            raise ValueError("Limit must be between 1 and 500")
+            
         with db_session() as db:
+            # Get total count
+            total = db.query(func.count(SwingCentre.id)).scalar()
+            
+            # Get paginated results
             swings = (
                 db.query(SwingCentre)
                 .order_by(desc(SwingCentre.detected_date))
+                .offset(offset)
                 .limit(limit)
                 .all()
             )
             
-            swing_data = []
-            for swing in swings:
-                swing_data.append({
-                    "id": swing.id,
-                    "symbol": swing.symbol,
-                    "swing_type": swing.swing_type,
-                    "swing_level": float(swing.swing_level) if swing.swing_level else None,
-                    "detected_date": swing.detected_date.isoformat() if swing.detected_date else None,
-                    "direction": swing.direction
-                })
-                
+            swing_data = [{
+                "id": swing.id,
+                "symbol": swing.symbol,
+                "swing_type": swing.swing_type,
+                "swing_level": float(swing.swing_level) if swing.swing_level else None,
+                "detected_date": swing.detected_date.isoformat() if swing.detected_date else None,
+                "direction": swing.direction
+            } for swing in swings]
+            
             return {
-                "count": len(swing_data),
-                "limit": limit,
-                "swings": swing_data
+                "data": swing_data,
+                "pagination": {
+                    "total": total,
+                    "limit": limit,
+                    "offset": offset,
+                    "has_more": (offset + len(swing_data)) < total
+                }
             }
+            
+    except ValueError as ve:
+        logger.warning(f"Validation error: {str(ve)}")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(ve)
+        )
     except Exception as e:
-        return {
-            "error": str(e),
-            "count": 0,
-            "limit": limit,
-            "swings": []
-        }
+        logger.error(f"Error fetching swings: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An error occurred while fetching swing data"
+        )
 
-
-def get_swings_by_symbol(symbol: str, limit: int = 50) -> Dict[str, Any]:
+def get_swings_by_symbol(
+    symbol: str, 
+    limit: int = 50, 
+    offset: int = 0,
+    start_date: Optional[datetime] = None,
+    end_date: Optional[datetime] = None
+) -> Dict[str, Any]:
     """
-    Get swing data for a specific symbol.
+    Get paginated swing data for a specific symbol with optional date filtering.
     
     Args:
         symbol: Stock symbol to filter by
-        limit: Maximum number of records to return
+        limit: Maximum number of records to return (1-500)
+        offset: Number of records to skip for pagination
+        start_date: Optional start date filter
+        end_date: Optional end date filter
         
     Returns:
-        Dictionary containing swing data for the symbol
+        Dictionary containing swing data and pagination info
+        
+    Raises:
+        HTTPException: If there's an error processing the request
     """
     try:
+        if not symbol:
+            raise ValueError("Symbol is required")
+            
+        if not (1 <= limit <= 500):
+            raise ValueError("Limit must be between 1 and 500")
+            
         with db_session() as db:
+            # Build base query
+            query = db.query(SwingCentre).filter(
+                SwingCentre.symbol == symbol.upper()
+            )
+            
+            # Apply date filters if provided
+            if start_date:
+                query = query.filter(SwingCentre.detected_date >= start_date)
+            if end_date:
+                query = query.filter(SwingCentre.detected_date <= end_date)
+            
+            # Get total count
+            total = query.count()
+            
+            # Get paginated results
             swings = (
-                db.query(SwingCentre)
-                .filter(SwingCentre.symbol == symbol.upper())
-                .order_by(desc(SwingCentre.detected_date))
+                query.order_by(desc(SwingCentre.detected_date))
+                .offset(offset)
                 .limit(limit)
                 .all()
             )
             
-            swing_data = []
-            for swing in swings:
-                swing_data.append({
-                    "id": swing.id,
-                    "symbol": swing.symbol,
-                    "swing_type": swing.swing_type,
-                    "swing_level": float(swing.swing_level) if swing.swing_level else None,
-                    "detected_date": swing.detected_date.isoformat() if swing.detected_date else None,
-                    "direction": swing.direction
-                })
-                
+            swing_data = [{
+                "id": swing.id,
+                "symbol": swing.symbol,
+                "swing_type": swing.swing_type,
+                "swing_level": float(swing.swing_level) if swing.swing_level else None,
+                "detected_date": swing.detected_date.isoformat() if swing.detected_date else None,
+                "direction": swing.direction
+            } for swing in swings]
+            
             return {
                 "symbol": symbol.upper(),
-                "count": len(swing_data),
-                "limit": limit,
-                "swings": swing_data
+                "data": swing_data,
+                "pagination": {
+                    "total": total,
+                    "limit": limit,
+                    "offset": offset,
+                    "has_more": (offset + len(swing_data)) < total
+                }
             }
+            
+    except ValueError as ve:
+        logger.warning(f"Validation error: {str(ve)}")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(ve)
+        )
     except Exception as e:
-        return {
-            "error": str(e),
-            "symbol": symbol.upper(),
-            "count": 0,
-            "limit": limit,
-            "swings": []
-        }
-
+        logger.error(f"Error fetching swings for {symbol}: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"An error occurred while fetching swing data for {symbol}"
+        )
 
 def get_swing_summary() -> Dict[str, Any]:
     """
@@ -106,32 +168,58 @@ def get_swing_summary() -> Dict[str, Any]:
     
     Returns:
         Dictionary containing swing summary statistics
+        
+    Raises:
+        HTTPException: If there's an error processing the request
     """
     try:
         with db_session() as db:
-            total_swings = db.query(func.count(SwingCentre.id)).scalar() or 0
-            unique_symbols = db.query(func.count(func.distinct(SwingCentre.symbol))).scalar() or 0
+            # Get total count
+            total_swings = db.query(func.count(SwingCentre.id)).scalar()
             
-            # Get swing type distribution
-            swing_types = (
-                db.query(SwingCentre.swing_type, func.count(SwingCentre.id))
-                .group_by(SwingCentre.swing_type)
+            # Get count by direction
+            direction_counts = (
+                db.query(
+                    SwingCentre.direction,
+                    func.count(SwingCentre.id).label('count')
+                )
+                .group_by(SwingCentre.direction)
                 .all()
             )
             
-            type_distribution = {}
-            for swing_type, count in swing_types:
-                type_distribution[swing_type or "unknown"] = count
-                
+            # Get latest swing date
+            latest_date = (
+                db.query(func.max(SwingCentre.detected_date))
+                .scalar()
+            )
+            
+            # Get top symbols by swing count
+            top_symbols = (
+                db.query(
+                    SwingCentre.symbol,
+                    func.count(SwingCentre.id).label('count')
+                )
+                .group_by(SwingCentre.symbol)
+                .order_by(desc('count'))
+                .limit(5)
+                .all()
+            )
+            
             return {
                 "total_swings": total_swings,
-                "unique_symbols": unique_symbols,
-                "type_distribution": type_distribution
+                "direction_counts": {
+                    direction: count for direction, count in direction_counts
+                },
+                "latest_swing_date": latest_date.isoformat() if latest_date else None,
+                "top_symbols": [
+                    {"symbol": symbol, "count": count} 
+                    for symbol, count in top_symbols
+                ]
             }
+            
     except Exception as e:
-        return {
-            "error": str(e),
-            "total_swings": 0,
-            "unique_symbols": 0,
-            "type_distribution": {}
-        }
+        logger.error(f"Error generating swing summary: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An error occurred while generating swing summary"
+        )

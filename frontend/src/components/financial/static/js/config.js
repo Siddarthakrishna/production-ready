@@ -3,16 +3,16 @@
 // If you need to switch environments, change API_BASE here only.
 
 // Do not override app protected base. Use DATA_API_BASE for public data endpoints.
-window.DATA_API_BASE = window.DATA_API_BASE || 'https://api.sharadaresearch.in';
+window.DATA_API_BASE = window.DATA_API_BASE || 'http://localhost:8000'; 
 // Back-compat alias for legacy code that references API_BASE for data only
 window.API_BASE = window.API_BASE || window.DATA_API_BASE;
 
 // Helpers to build normalized endpoints
 window.apiUrl = {
   current: () => `${DATA_API_BASE}/current?type=servertime`,
-  studyData: (name) => `${DATA_API_BASE}/study-data/${encodeURIComponent(name)}`,
-  studySymbol: (name, count = 5) => `${DATA_API_BASE}/study-symbol/${encodeURIComponent(name)}?count=${encodeURIComponent(count)}`,
-  advDec: (index) => `${DATA_API_BASE}/adv-dec/${encodeURIComponent(index)}`,
+  studyData: (name) => `${DATA_API_BASE}/swing/study/data/${encodeURIComponent(name)}`,
+  studySymbol: (name, count = 5) => `${DATA_API_BASE}/swing/study/symbol/${encodeURIComponent(name)}?count=${encodeURIComponent(count)}`,
+  advDec: (index) => `${DATA_API_BASE}/swing/adv-dec/${encodeURIComponent(index)}`,
 };
 
 // v2 API builders (standardized endpoints)
@@ -58,7 +58,12 @@ window.apiV2 = {
   proUnusualVolume: () => `${DATA_API_BASE}/pro/unusual-volume`,
 
   // Swing Centre
-  swingNifty500: () => `${DATA_API_BASE}/swing/nifty500`,
+  swingWeeklyPerformance: () => apiUrl.studyData('MAJOR INDEX WEEKLY PERFORMANCE'),
+  swingShortTermBullish: (count = 20) => apiUrl.studySymbol('short-term-bullish', count),
+  swingShortTermBearish: (count = 20) => apiUrl.studySymbol('short-term-bearish', count),
+  swingLongTermBullish: (count = 20) => apiUrl.studySymbol('long-term-bullish', count),
+  swingLongTermBearish: (count = 20) => apiUrl.studySymbol('long-term-bearish', count),
+  swingAdvanceDecline: (index = 'NIFTY') => apiUrl.advDec(index),
 
   // Journal
   journalPost: () => `${DATA_API_BASE}/journal/logs`,
