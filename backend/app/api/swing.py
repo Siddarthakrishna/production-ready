@@ -2,8 +2,8 @@ from fastapi import APIRouter, Query, HTTPException
 from typing import Dict, Any, List
 import pandas as pd
 from datetime import datetime
-from backend.app.services import swing_service
-from backend.app.services.services.study_service import StudyService
+from app.services import swing_service
+from app.services.services.study_service import StudyService
 from pydantic import BaseModel, Field
 
 router = APIRouter(prefix="/swing", tags=["swing"])

@@ -1,6 +1,6 @@
 from fastapi import APIRouter
-from backend.app.services import sector_service as svc
-from backend.app.api.schemas import SectorHeatmapResponse, SectorDetailResponse
+from app.services import sector_service as svc
+from app.api.schemas import SectorHeatmapResponse, SectorDetailResponse
 
 router = APIRouter(prefix="/sector", tags=["sector"])  
 

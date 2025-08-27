@@ -1,8 +1,8 @@
 from typing import Optional, Dict, List
 from sqlalchemy import text, desc
 from sqlalchemy.exc import SQLAlchemyError
-from backend.app.db.connection import get_engine
-from backend.app.utils.cache import cache
+from app.db.connection import get_engine
+from app.utils.cache import cache
 from datetime import datetime, timedelta
 import json
 

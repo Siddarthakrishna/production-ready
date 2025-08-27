@@ -7,9 +7,9 @@ from sqlalchemy import desc, func, and_
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 
-from backend.app.db.connection import db_session
-from backend.app.db.models import SwingCentre
-from backend.app.core.logger import get_logger
+from app.db.connection import db_session
+from app.db.models import SwingCentre
+from app.core.logger import get_logger
 
 logger = get_logger(__name__)
 

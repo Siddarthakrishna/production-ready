@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 import json
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
-from backend.app.db.connection import get_engine
+from app.db.connection import get_engine
 
 def get_intraday_ohlcv(
     symbol: str, 

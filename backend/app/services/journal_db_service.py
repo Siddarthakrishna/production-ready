@@ -4,8 +4,8 @@ from typing import Dict
 from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
 
-from backend.app.db.connection import db_session
-from backend.app.db.models import TradingJournal
+from app.db.connection import db_session
+from app.db.models import TradingJournal
 
 
 def add_log(

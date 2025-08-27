@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Query
-from backend.app.services import pro_setup_service as svc
-from backend.app.api.schemas import ProListResponse
+from app.services import pro_setup_service as svc
+from app.api.schemas import ProListResponse
 
 router = APIRouter(prefix="/pro", tags=["pro-setup"])  
 

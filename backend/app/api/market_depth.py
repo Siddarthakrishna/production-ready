@@ -1,6 +1,6 @@
 from fastapi import APIRouter
-from backend.app.services import market_depth_service as svc
-from backend.app.api.schemas import MarketDepthListResponse
+from app.services import market_depth_service as svc
+from app.api.schemas import MarketDepthListResponse
 
 router = APIRouter(prefix="/market-depth", tags=["market-depth"])  
 

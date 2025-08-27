@@ -3,7 +3,7 @@ from datetime import date, datetime, timedelta
 from functools import lru_cache
 from typing import Dict, Optional, List
 import random
-from backend.app.services.param_normalizer import normalize_fii_dii_data
+from app.services.param_normalizer import normalize_fii_dii_data
 
 
 @lru_cache(maxsize=128)

@@ -7,8 +7,8 @@ param_0 to param_4 format for consistent frontend consumption.
 
 from fastapi import APIRouter, Query, HTTPException
 from typing import Optional, Dict, List
-from backend.app.services.services.study_service import StudyService
-from backend.app.services.fii_dii_service import get_fii_dii_data_unified
+from app.services.services.study_service import StudyService
+from app.services.fii_dii_service import get_fii_dii_data_unified
 
 router = APIRouter(prefix="/unified", tags=["unified-study"])
 

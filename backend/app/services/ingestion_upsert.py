@@ -2,7 +2,7 @@ from typing import Any, Dict, Optional
 from datetime import date
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
-from backend.app.db.connection import get_engine
+from app.db.connection import get_engine
 
 
 def _exec(conn, sql: str, params: Dict[str, Any]) -> None:

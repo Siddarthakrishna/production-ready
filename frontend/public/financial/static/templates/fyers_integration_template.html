@@ -1,0 +1,213 @@
+<!-- 
+    Fyers Integration Template
+    Add this before closing </body> tag in all HTML files that need Fyers functionality
+    
+    USAGE:
+    1. Include this template in HTML files
+    2. Ensure dependencies are loaded (jQuery, Bootstrap)
+    3. The integration will automatically work with existing chart elements
+-->
+
+<!-- Fyers Status Indicator (Optional - add to header/navbar area) -->
+<div class="fyers-status-container" style="display: none; position: fixed; top: 10px; right: 10px; z-index: 1000; padding: 10px; background: rgba(0,0,0,0.8); border-radius: 5px;">
+    <div class="fyers-auth-status status-disconnected" style="padding: 5px 10px; border-radius: 3px; font-size: 0.8em; margin-bottom: 5px;">
+        Not connected to Fyers
+    </div>
+    <div class="fyers-rate-limit" style="font-size: 0.7em; color: #6c757d;">
+        60/60 requests remaining
+    </div>
+    <div class="progress" style="height: 4px; margin-top: 2px;">
+        <div class="progress-bar fyers-rate-progress bg-success" role="progressbar" style="width: 100%"></div>
+    </div>
+    <div class="fyers-controls" style="margin-top: 8px;">
+        <button class="btn btn-sm btn-primary fyers-auth-btn" style="font-size: 0.7em; padding: 2px 8px;">
+            Connect Fyers
+        </button>
+        <button class="btn btn-sm btn-info fyers-sync-btn" style="font-size: 0.7em; padding: 2px 8px; margin-left: 5px;" disabled>
+            Sync Prices
+        </button>
+    </div>
+</div>
+
+<!-- Fyers Integration Scripts -->
+<script src="static/js/fyers_integration.js"></script>
+<script src="static/js/unified_chart_manager.js"></script>
+
+<!-- Fyers Integration Initialization -->
+<script>
+$(document).ready(function() {
+    // Initialize Fyers integration
+    if (typeof FyersManager !== 'undefined') {
+        window.fyersManager = new FyersManager();
+        console.log('Fyers integration initialized');
+        
+        // Show status indicator
+        $('.fyers-status-container').show();
+        
+        // Auto-hide status indicator after 10 seconds if not hovered
+        setTimeout(() => {
+            if (!$('.fyers-status-container:hover').length) {
+                $('.fyers-status-container').fadeOut();
+            }
+        }, 10000);
+        
+        // Show on hover near top-right corner
+        $(document).on('mousemove', function(e) {
+            if (e.clientX > window.innerWidth - 100 && e.clientY < 100) {
+                $('.fyers-status-container').fadeIn();
+            }
+        });
+    }
+    
+    // Initialize unified chart manager
+    if (typeof unifiedChartManager !== 'undefined') {
+        console.log('Unified chart manager available');
+        
+        // Make chart redirect functions available globally
+        window.tw_charts = (symbol) => unifiedChartManager.tw_charts(symbol);
+        window.openChart = (exchange, symbol) => unifiedChartManager.openChart(exchange, symbol);
+        
+        // Convert existing chart elements to use unified manager
+        $('[data-exchange][data-symbol]').addClass('chart-redirect-enabled');
+        $('.chart-symbol, .symbol-link').each(function() {
+            const symbol = $(this).text().trim();
+            if (symbol && !$(this).data('symbol')) {
+                $(this).attr('data-symbol', symbol);
+                $(this).attr('data-exchange', 'NSE');
+                $(this).addClass('chart-redirect-enabled');
+            }
+        });
+    }
+    
+    // Enhanced chart click handlers for ApexCharts
+    if (window.ApexCharts) {
+        // Override ApexCharts click events to use Fyers integration
+        const originalRender = ApexCharts.prototype.render;
+        ApexCharts.prototype.render = function() {
+            const result = originalRender.call(this);
+            
+            // Add click handler if chart has symbols
+            if (this.w && this.w.config && this.w.config.chart && this.w.config.chart.events) {
+                const originalClick = this.w.config.chart.events.click;
+                this.w.config.chart.events.click = function(event, chartContext, config) {
+                    // Call original click handler first
+                    if (originalClick) {
+                        originalClick.call(this, event, chartContext, config);
+                    }
+                    
+                    // Add Fyers chart redirection
+                    if (config && config.dataPointIndex >= 0) {
+                        const categories = chartContext.w.globals.categoryLabels || chartContext.w.globals.labels;
+                        if (categories && categories[config.dataPointIndex]) {
+                            const symbol = categories[config.dataPointIndex];
+                            if (window.unifiedChartManager) {
+                                window.unifiedChartManager.openChart('NSE', symbol);
+                            }
+                        }
+                    }
+                };
+            }
+            
+            return result;
+        };
+    }
+});
+
+// CSS Styles for Fyers Integration
+const fyersStyles = `
+<style>
+.fyers-status-container {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.fyers-auth-status {
+    border-radius: 3px;
+    font-weight: 500;
+    text-align: center;
+}
+
+.fyers-auth-status.status-success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.fyers-auth-status.status-error,
+.fyers-auth-status.status-disconnected {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.fyers-auth-status.status-warning {
+    background-color: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeaa7;
+}
+
+.fyers-rate-limit {
+    text-align: center;
+    font-weight: 500;
+}
+
+.chart-redirect-enabled {
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.chart-redirect-enabled:hover {
+    color: #007bff !important;
+    text-decoration: underline;
+}
+
+.fyers-symbol-link {
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.fyers-symbol-link:hover {
+    color: #007bff;
+    text-decoration: underline;
+}
+
+/* ApexCharts enhancements for better clicking */
+.apexcharts-canvas {
+    cursor: pointer;
+}
+
+.apexcharts-legend-text {
+    cursor: pointer !important;
+}
+
+.apexcharts-bar-area {
+    cursor: pointer !important;
+}
+
+.apexcharts-series path {
+    cursor: pointer !important;
+}
+</style>
+`;
+
+// Inject styles
+document.head.insertAdjacentHTML('beforeend', fyersStyles);
+</script>
+
+<!-- Quick Access Fyers Tools (Optional - uncomment if needed) -->
+<!--
+<div class="fyers-quick-tools" style="display: none; position: fixed; bottom: 20px; right: 20px; z-index: 1000;">
+    <div class="btn-group-vertical" role="group">
+        <button type="button" class="btn btn-sm btn-outline-primary fyers-auth-btn">
+            <i class="fas fa-link"></i> Fyers
+        </button>
+        <button type="button" class="btn btn-sm btn-outline-info fyers-sync-btn" disabled>
+            <i class="fas fa-sync"></i> Sync
+        </button>
+        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="$('.fyers-status-container').toggle()">
+            <i class="fas fa-chart-line"></i> Status
+        </button>
+    </div>
+</div>
+-->

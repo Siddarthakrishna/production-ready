@@ -1,13 +1,13 @@
 from fastapi import APIRouter, Query
 from typing import Optional
-from backend.app.api.schemas import (
+from app.api.schemas import (
     FnoExpiry,
     FnoOI,
     FnoOptionChain,
     FnoRelativeFactor,
     FnoHeatmapResponse,
 )
-from backend.app.services import fno_service as svc
+from app.services import fno_service as svc
 
 router = APIRouter(prefix="/fno", tags=["fno"])  # mounted at /api
 

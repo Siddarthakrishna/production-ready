@@ -3,7 +3,7 @@ import { Link } from 'react-scroll';
 import { Button } from './ui/button';
 import { Card } from './ui/card';
 import { ChevronDown, Code, TrendingUp, MapPin, Star } from 'lucide-react';
-import '../styles/Hero.css';
+import '../../styles/Hero.css';
 
 const Hero = () => {
   useEffect(() => {

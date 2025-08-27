@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+   <meta charset="UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Swing Center |sharadaresearch</title>
+   <!-- Bootstrap CSS -->
+   <link rel="stylesheet" type="text/css" href="static/css/bootstrap_5.3.css">
+
+   <!-- Manual CSS -->
+   <link rel="stylesheet" type="text/css" href="static/css/header.css">
+   <link rel="stylesheet" type="text/css" href="static/css/swing_center.css">
+   <link rel="stylesheet" type="text/css" href="static/css/apexchart.css">
+   <link rel="stylesheet" type="text/css" href="static/css/aos.css">
+   <link rel="stylesheet" type="text/css" href="static/css/boxicons.min.css">
+   <link rel="stylesheet" type="text/css" href="static/css/owl.carousel.min.css">
+   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css">
+   <link href="https://cdn.jsdelivr.net/npm/icofont@1.0.0/dist/icofont.min.css" rel="stylesheet">
+   <link rel="stylesheet" type="text/css" href="static/css/all.min.css">
+   <link rel="stylesheet" type="text/css" href="static/css/datatables.css">
+
+   <!-- ICONS -->
+   <link rel="icon" href="static/img/sharadalogo.png" sizes="32x32" />
+   <link rel="icon" href="static/img/sharadalogo.png" sizes="192x192" />
+   
+   <!-- App config -->
+   <script src="static/js/app_config.js"></script>
+   <!-- jquery -->
+   <script src="static/js/jquery_3.7.0.js"></script>
+   <!-- Unified API scripts -->
+   <script src="static/js/api_shim.js"></script>
+   <script src="static/js/config.js"></script>
+   <!-- ApexCharts -->
+   <script src="static/js/apexcharts.min.js"></script>
+   <!-- DataTables -->
+   <script src="static/js/jquery.dataTables.min.js"></script>
+   <script src="static/js/dataTables.responsive.min.js"></script>
+   
+   <style>
+      .text-success { color: #28a745 !important; }
+      .text-danger { color: #dc3545 !important; }
+      .table th { white-space: nowrap; }
+      .new_input {
+         background-color: #2a2a2a !important;
+         color: #fff !important;
+         border: 1px solid #444;
+         border-radius: 4px;
+         padding: 5px 10px;
+         width: 100%;
+      }
+      body {
+         font-family: 'Outfit', sans-serif;
+         padding-top: 70px; /* Adjust based on header height */
+      }
+   </style>
+</head>
+
+<body>
+    <header id="header" class="fixed-top">
+        <div class="container d-flex align-items-center">
+            <a href="/financial" class="logo mr-auto">
+                <img src="static/img/sharadalogo.png" alt="" class="img-fluid">
+            </a>
+            <nav class="nav-menu d-none d-lg-block">
+                <ul>
+                    <li><a href="/financial">Home</a></li>
+                    <li class="active"><a href="swing_center.html">Swing Center</a></li>
+                    <!-- Add more navigation items as needed -->
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main id="main" class="container-fluid">
+        <!-- Main content here -->
+        <div class="main-panel">
+            <div class="content-wrapper">
+               <div class="d-flex justify-content-center mb-4">
+                  <!-- <a href="/trade-with-tredcode"><span class="tooltip_1">>> Trade with Tredcode</span></a> -->
+                  <a href="/trade-with-tredcode" role="button" class="btn btn-outline-info" id="check_access_button"
+                     style="font-weight: bold; text-decoration: underline;">>> Trade with Tredcode</a>
+               </div>
+
+               <div class="row d-flex justify-content-center px-3 p-0-mob donut_bar_row">
+                  <div class="col-md-6 grid-margin p-0 p-0-mob mx-3">
+                     <div class="card h-100" style="margin-bottom: 4%;">
+                        <div class="card-body" id="semichart_1">
+                           <span class="text-light font-weight-bold mb-1">Nifty A/D Growth<a class="live"><i
+                                    class="fa-solid fa-circle fa-sm"></i>&nbsp;ACTIVE</a></span>
+
+                           <div class="dataTableContainer">
+                              <div id="blur-background" class="d-none blur-background"></div>
+                              <div id="nftadgrouthp"></div>
+                              <div class="progress-title">
+                                 <p id="nftadgrouthspan"><span></span> Decline % Growth from Yest. Close</p>
+                              </div>
+                              <div id="lock-icon" class="d-none lock-icon">
+                                 <div class="row d-flex justify-content-center">
+                                    <i class="fa-solid fa-lock fa-5x"></i>
+                                 </div>
+                                 <div class="row">
+                                    <span class="mt-2 text-center" style="font-weight: bold; font-size: 22px;">Only for
+                                       TCI students</span>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+                  <div class="col-md-6 grid-margin p-0 p-0-mob mx-3">
+                     <div class="card h-100">
+                        <div class="card-body" id="semichart_2">
+                           <span class="text-light font-weight-bold mb-1">FO A/D Growth <a class="live"><i
+                                    class="fa-solid fa-circle fa-sm"></i>&nbsp;ACTIVE</a></span>
+
+                           <div class="dataTableContainer">
+                              <div id="blur-background" class="d-none blur-background"></div>
+                              <div id="fotadgrouthp"></div>
+                              <div class="progress-title">
+                                 <p id="fotadgrouthspan"><span></span> Decline % Growth from Yest. Close</p>
+                              </div>
+                              <div id="lock-icon" class="d-none lock-icon">
+                                 <div class="row d-flex justify-content-center">
+                                    <i class="fa-solid fa-lock fa-5x"></i>
+                                 </div>
+                                 <div class="row">
+                                    <span class="mt-2 text-center" style="font-weight: bold; font-size: 22px;">Only for
+                                       TCI students</span>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+               <!-- row 1 -->
+               <div class="row d-flex justify-content-center">
+                  <div class="col-md-6 bg-color text-light grid-margin rounded mx-3 pb-4">
+                     <div class="row m-3 px-3 d-flex align-items-center heading_font_size_row">
+                        <div class="col-9 px-1 font-weight-bold heading_font_size">
+                           SHORT TERM SWING BO - UP<a class="live"><i class="fa-solid fa-circle fa-sm"></i>&nbsp;ACTIVE</a>
+                        </div>
+
+                        <div class="col-3 px-1 text-light">
+                           <input id="tendayhighbo_ip" class="float-right new_input" placeholder="Search Stock">
+                        </div>
+                     </div>
+                     <div class="dataTableContainer">
+                        <div id="blur-background" class="d-none blur-background"></div>
+                        <table id="tendayhighbo" class="new_table table-striped table-borderless dataTableSw">
+                           <thead>
+                              <tr>
+                                 <th>Symbol</th>
+                                 <th>LTP</th>
+                                 <th>Pre C</th>
+                                 <th>%</th>
+                                 <th>Sector</th>
+                                 <th>Date</th>
+                              </tr>
+                           </thead>
+                           <tbody id="tendayhighbo_tbody"></tbody>
+                        </table>
+                        <div id="lock-icon" class="d-none lock-icon">
+                           <div class="row d-flex justify-content-center">
+                              <i class="fa-solid fa-lock fa-5x"></i>
+                           </div>
+                           <div class="row">
+                              <span class="mt-2 text-center" style="font-weight: bold; font-size: 22px;">Only for
+                                 TCI students</span>
+                           </div>
+                        </div>
+                     </div>
+
+                  </div>
+                  <div class="col-md-6 bg-color text-light grid-margin rounded mx-3 pb-4">
+                     <div class="row m-3 px-3 d-flex align-items-center heading_font_size_row">
+                        <div class="col-9 px-1 font-weight-bold heading_font_size">
+                           SHORT TERM SWING BO - DOWN <a class="live"><i
+                                 class="fa-solid fa-circle fa-sm"></i>&nbsp;ACTIVE</a>
+                        </div>
+
+                        <div class="col-3 px-1 text-light">
+                           <input id="tendaylowbo_ip" class="float-right new_input" placeholder="Search Stock">
+                        </div>
+                     </div>
+                     <div class="dataTableContainer">
+                        <div id="blur-background" class="d-none blur-background"></div>
+                        <table id="tendaylowbo" class="new_table table-striped table-borderless dataTableSw">
+                           <thead>
+                              <tr>
+                                 <th>Symbol</th>
+                                 <th>LTP</th>
+                                 <th>Pre C</th>
+                                 <th>%</th>
+                                 <th>Sector</th>
+                                 <th>Date</th>
+                              </tr>
+                           </thead>
+                           <tbody id="tendaylowbo_tbody"></tbody>
+                        </table>
+                        <div id="lock-icon" class="d-none lock-icon">
+                           <div class="row d-flex justify-content-center">
+                              <i class="fa-solid fa-lock fa-5x"></i>
+                           </div>
+                           <div class="row">
+                              <span class="mt-2 text-center" style="font-weight: bold; font-size: 22px;">Only for
+                                 TCI students</span>
+                           </div>
+                        </div>
+                     </div>
+
+                  </div>
+               </div>
+               <!-- row 2 -->
+               <div class="row d-flex justify-content-center">
+                  <div class="col-md-6 bg-color text-light grid-margin ml-0 mx-3 rounded pb-4">
+                     <div class="row m-3 px-3 d-flex align-items-center heading_font_size_row">
+                        <div class="col-9 px-1 font-weight-bold heading_font_size">
+                           LONG TERM SWING BO - UP<a class="live"><i class="fa-solid fa-circle fa-sm"></i>&nbsp;ACTIVE</a>
+                        </div>
+
+                        <div class="col-3 px-1 text-light">
+                           <input id="fiftydayhighbo_ip" class="float-right new_input" placeholder="Search Stock">
+                        </div>
+                     </div>
+                     <div class="dataTableContainer">
+                        <div id="blur-background" class="d-none blur-background"></div>
+                        <table id="fiftydayhighbo" class="new_table table-striped table-borderless dataTableSw">
+                           <thead>
+                              <tr>
+                                 <th>Symbol</th>
+                                 <th>LTP</th>
+                                 <th>Pre C</th>
+                                 <th>%</th>
+                                 <th>Sector</th>
+                                 <th>Date</th>
+                              </tr>
+                           </thead>
+                           <tbody id="fiftydayhighbo_tbody"></tbody>
+                        </table>
+                        <div id="lock-icon" class="d-none lock-icon">
+                           <div class="row d-flex justify-content-center">
+                              <i class="fa-solid fa-lock fa-5x"></i>
+                           </div>
+                           <div class="row">
+                              <span class="mt-2 text-center" style="font-weight: bold; font-size: 22px;">Only for
+                                 TCI students</span>
+                           </div>
+                        </div>
+                     </div>
+
+                  </div>
+                  <div class="col-md-6 bg-color text-light grid-margin mx-3 rounded pb-4">
+                     <div class="row m-3 px-3 d-flex align-items-center heading_font_size_row">
+                        <div class="col-9 px-1 font-weight-bold heading_font_size">
+                           LONG TERM SWING BO - DOWN <a class="live"><i
+                                 class="fa-solid fa-circle fa-sm"></i>&nbsp;ACTIVE</a>
+                        </div>
+
+                        <div class="col-3 px-1 text-light">
+                           <input id="fiftydaylowbo_ip" class="float-right new_input" placeholder="Search Stock">
+                        </div>
+                     </div>
+                     <div class="dataTableContainer">
+                        <div id="blur-background" class="d-none blur-background"></div>
+                        <table id="fiftydaylowbo" class="new_table table-striped table-borderless dataTableSw">
+                           <thead>
+                              <tr>
+                                 <th>Symbol</th>
+                                 <th>LTP</th>
+                                 <th>Pre C</th>
+                                 <th>%</th>
+                                 <th>Sector</th>
+                                 <th>Date</th>
+                              </tr>
+                           </thead>
+                           <tbody id="fiftydaylowbo_tbody"></tbody>
+                        </table>
+                        <div id="lock-icon" class="d-none lock-icon">
+                           <div class="row d-flex justify-content-center">
+                              <i class="fa-solid fa-lock fa-5x"></i>
+                           </div>
+                           <div class="row">
+                              <span class="mt-2 text-center" style="font-weight: bold; font-size: 22px;">Only for
+                                 TCI students</span>
+                           </div>
+                        </div>
+                     </div>
+
+                  </div>
+               </div>
+
+               <div class="row d-flex justify-content-center">
+                  <div class="col-md-12 grid-margin stretch-card p-0-mob">
+                     <div class="card rounded">
+                        <div class="card-head" style="margin-bottom: 0;">
+                           <div class="row">
+                              <div class="px-0 col-md-7 col-md-7-heading">
+                                 <span class="text-light font-weight-bold">MAJOR INDEX WEEKLY PERFORMANCE <a
+                                       class="live"><i class="fa-solid fa-circle fa-sm"></i>&nbsp;ACTIVE</a> </span>
+                              </div>
+                           </div>
+                        </div>
+                        <div class="card-body barchart-percentage-wrap">
+                           <div class="dataTableContainer">
+                              <div id="blur-background" class="d-none blur-background"></div>
+                              <div id="barchart"> </div>
+                              <div id="lock-icon" class="d-none lock-icon">
+                                 <div class="row d-flex justify-content-center">
+                                    <i class="fa-solid fa-lock fa-5x"></i>
+                                 </div>
+                                 <div class="row">
+                                    <span class="mt-2 text-center" style="font-weight: bold; font-size: 22px;">Only for
+                                       TCI students</span>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+
+               <div class="chat_slide_wrapper">
+                  <div class="fixed_updates_window text-light bg-color">
+                     <div class="fixed_updates_window_head font-weight-bold">
+                        <div class="h-100 d-flex align-items-center">
+                           <div class="">Updates &nbsp;<i class="fa-solid fa-message"></i></div>
+                           <div class="ml-auto" onclick="toggle_updates_window(true)">X</div>
+                        </div>
+                     </div>
+                     <div class="dataTableContainer">
+                        <div id="blur-background" class="d-none blur-background"></div>
+                        <div class="fixed_updates_window_body"></div>
+                        <div id="lock-icon" class="d-none lock-icon">
+                           <div class="row d-flex justify-content-center">
+                              <i class="fa-solid fa-lock fa-5x"></i>
+                           </div>
+                           <div class="row">
+                              <span class="mt-2 text-center" style="font-weight: bold; font-size: 22px;">Only for
+                                 TCI students</span>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+
+                  <div class="fixed_updates_btn shadow">
+                     <button class="bg-color text-light" id="updates_btn" onclick="toggle_updates_window()"><img
+                           src="img/msg.png" width="25" height="25"></button>
+                  </div>
+
+                  <div class="top_arrow bg-color" onclick="$('html, body').animate({ scrollTop: 0 }, 'slow');">
+                     <i class="fa-solid fa-angles-up" style="color: #fff;"></i>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </main>
+
+      <!-- Bootstrap Bundle with Popper -->
+      <script src="static/js/bootstrap.bundle.min.js"></script>
+      <!-- Application Scripts -->
+      <script src="static/js/swing_center_combined.js"></script>
+      
+      <!-- Error message container -->
+      <div class="error-message alert alert-danger" style="display: none; position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
+   </body>
+
+</html>

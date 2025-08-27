@@ -1,8 +1,8 @@
 from datetime import date
 from typing import Optional, List, Dict
 from fastapi import APIRouter, Query
-from backend.app.services import fii_dii_service as svc
-from backend.app.api.schemas import FiiDiiNet, FiiDiiBreakdown
+from app.services import fii_dii_service as svc
+from app.api.schemas import FiiDiiNet, FiiDiiBreakdown
 
 router = APIRouter(prefix="/fii-dii", tags=["fii-dii"]) 
 

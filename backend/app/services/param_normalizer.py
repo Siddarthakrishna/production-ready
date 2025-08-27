@@ -89,7 +89,7 @@ class ParamNormalizer:
     def _normalize_scanner_data(record: Dict) -> Dict:
         """Normalize scanner data format"""
         return {
-            "param_0": float(record.get("ltp", record.get("LTP", record.get("price", 0))),
+            "param_0": float(record.get("ltp", record.get("LTP", record.get("price", 0)))),
             "param_1": float(record.get("prev_close", record.get("previousClose", record.get("param_1", 0)))),
             "param_2": float(record.get("change_pct", record.get("pctChange", record.get("param_2", 0)))),
             "param_3": float(record.get("r_factor", record.get("momentum", record.get("param_3", 0)))),

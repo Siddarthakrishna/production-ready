@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Future and Options |sharadaresearch</title>
+  <link rel="stylesheet" type="text/css" href="static/css/bootstrap_5.3.css">
+  <link rel="stylesheet" type="text/css" href="static/css/ion.rangeSlider.min.css">
+  <link rel="stylesheet" type="text/css" href="static/css/header.css">
+  <link rel="stylesheet" type="text/css" href="static/css/money_flux.css">
+  <link rel="stylesheet" type="text/css" href="static/css/dial.css">
+  <link rel="stylesheet" type="text/css" href="static/css/apexchart.css">
+
+  <link rel="icon" href="static/img/Tredcode_logo.png" sizes="32x32" />
+  <link rel="icon" href="static/img/Tredcode_logo.png" sizes="192x192" />
+  <link rel="stylesheet" type="text/css" href="static/css/all.min.css">
+  <link rel="stylesheet" type="text/css" href="static/css/themify-icons.css">
+
+  <style>
+    .highcharts-xaxis-grid,
+    .highcharts-credits { display: none !important; }
+    .sector-filter { max-width: 280px; }
+  </style>
+  
+  <!-- Unified API scripts -->
+  <script src="static/js/api_shim.js"></script>
+  <script src="static/js/config.js"></script>
+  
+  <!-- Google API for Authentication -->
+  <script src="https://apis.google.com/js/api.js"></script>
+  <script src="https://apis.google.com/js/platform.js" async defer></script>
+  <script src="static/js/google_auth.js"></script>
+</head>
+
+<body>
+  <nav class="navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
+    <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-start">
+      <a class="navbar-brand brand-logo mx-2" href="home.html"><img src="static/img/Tredcode_logo.png" alt="logo" /></a>
+    </div>
+    <div class="navbar-menu-wrapper d-flex align-items-center justify-content-end">
+      <span id="page_heading" class="text-light h3 m-auto">FUTURE AND OPTIONS</span>
+      <ul class="nifty navbar-nav navbar-nav-right py-3 px-2" id="nifty_block_head">
+        <li class="text px-1"><span id="swingname1">NIFTY</span></li>
+        <li class="amount px-1 text-light"><span id="swingamount1">-</span></li>
+        <li class="border-radius-25 green-light-bg per px-2"><span id="swingper1">-%</span></li>
+      </ul>
+      <ul class="nifty navbar-nav navbar-nav-right py-3 px-2 ml-0" id="bnknifty_block_head">
+        <li class="text px-1"><span id="swingname2">BANKNIFTY</span></li>
+        <li class="amount px-1 text-light"><span id="swingamount2">-</span></li>
+        <li class="border-radius-25 pink-light-bg per px-2"><span id="swingper2">-%</span></li>
+      </ul>
+      <ul class="navbar-nav navbar-nav-right ml-0">
+        <li class="nav-item nav-profile dropdown" onclick="showLogout()">
+          <a class="nav-link dropdown-toggle" href="javascript:void(0)" data-toggle="dropdown" id="profileDropdown">
+            <img src="static/img/usericon.png" alt="profile" /> <span id="uname"></span>
+            <i class="fa-solid fa-caret-down"></i>
+          </a>
+          <div class="dropdown-menu dropdown-menu-right navbar-dropdown" id="Logout_button" aria-labelledby="profileDropdown">
+            <a class="dropdown-item" href="javascript:void(0)"><i class="fa-solid fa-power-off"></i> Logout</a>
+          </div>
+        </li>
+      </ul>
+      <button class="navbar-toggler navbar-toggler-right align-self-center" type="button" onclick="toggle_sidebar()" style="background: none; border: none; color: #fff; font-size: 1.2rem; padding: 8px 12px; border-radius: 4px; transition: background-color 0.3s;">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+    </div>
+  </nav>
+
+  <div class="container-fluid page-body-wrapper" style="background-color:#0e0e0e;">
+    <nav class="sidebar sidebar-offcanvas" id="sidebar" style="transition:0.3s;position:fixed;width:60px;z-index:10;"></nav>
+    <nav class="sidebar sidebar-offcanvas" id="sidebar2" style="visibility: hidden; width: 250px; display: none; position: fixed; z-index: 11; background: #1c1c1c; box-shadow: 2px 0 10px rgba(0,0,0,0.3);">
+      <div style="padding: 15px 0; border-bottom: 1px solid #333; text-align: center;">
+        <h5 class="text-light mb-0">Navigation</h5>
+      </div>
+      <ul class="nav flex-column" style="padding-top: 15px;">
+        <li class="nav-item">
+          <a class="nav-link d-flex align-items-center" href="home.html" style="color: #fff; padding: 10px 20px; transition: 0.3s;">
+            <i class="fa-solid fa-home me-3" style="width: 20px;"></i>
+            <span>Home</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link d-flex align-items-center" href="market_depth.html" style="color: #fff; padding: 10px 20px; transition: 0.3s;">
+            <img src="static/img/market_depth.png" style="width: 20px; height: 20px; margin-right: 12px;">
+            <span>Market Depth</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link d-flex align-items-center" href="pro_setup.html" style="color: #fff; padding: 10px 20px; transition: 0.3s;">
+            <img src="static/img/pro_setup.png" style="width: 20px; height: 20px; margin-right: 12px;">
+            <span>Pro Setup</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link d-flex align-items-center" href="sectorial_flow.html" style="color: #fff; padding: 10px 20px; transition: 0.3s;">
+            <img src="static/img/sectorial_flow.png" style="width: 20px; height: 20px; margin-right: 12px;">
+            <span>Sectorial Flow</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link d-flex align-items-center" href="swing_center.html" style="color: #fff; padding: 10px 20px; transition: 0.3s;">
+            <img src="static/img/swing_center.png" style="width: 20px; height: 20px; margin-right: 12px;">
+            <span>Swing Center</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link d-flex align-items-center" href="index_analysis.html" style="color: #fff; padding: 10px 20px; transition: 0.3s;">
+            <img src="static/img/index_analysis.png" style="width: 20px; height: 20px; margin-right: 12px;">
+            <span>Index Analysis</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link d-flex align-items-center" href="moneyflux.html" style="color: #fff; padding: 10px 20px; transition: 0.3s;">
+            <img src="static/img/moneyflux.png" style="width: 20px; height: 20px; margin-right: 12px;">
+            <span>Money Flux</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link d-flex align-items-center" href="scanners.html" style="color: #fff; padding: 10px 20px; transition: 0.3s;">
+            <img src="static/img/scanner.png" style="width: 20px; height: 20px; margin-right: 12px;">
+            <span>Scanners</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link d-flex align-items-center" href="fii_dii_data.html" style="color: #fff; padding: 10px 20px; transition: 0.3s;">
+            <img src="static/img/fii_dii_data.png" style="width: 20px; height: 20px; margin-right: 12px;">
+            <span>FII/DII Data</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link d-flex align-items-center" href="trading_journal.html" style="color: #fff; padding: 10px 20px; transition: 0.3s;">
+            <img src="static/img/trading_journal.png" style="width: 20px; height: 20px; margin-right: 12px;">
+            <span>Trading Journal</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link d-flex align-items-center" href="fno.html" style="color: #fff; padding: 10px 20px; transition: 0.3s; background-color: rgba(255, 255, 255, 0.1); border-radius: 5px;">
+            <img src="static/img/feedback.png" style="width: 20px; height: 20px; margin-right: 12px;">
+            <span>FNO</span>
+          </a>
+        </li>
+        
+      </ul>
+      <div style="position: absolute; bottom: 20px; left: 20px; right: 20px; border-top: 1px solid #333; padding-top: 15px;">
+        <a class="nav-link d-flex align-items-center" href="disclaimer.html" style="color: #ccc; padding: 5px 0; font-size: 0.9em;">
+          <i class="fa-solid fa-info-circle me-2"></i>
+          <span>Disclaimer</span>
+        </a>
+      </div>
+    </nav>
+
+    <div class="main-panel">
+      <div class="content-wrapper">
+        <div class="d-flex justify-content-center mb-4">
+          <a href="trade_with_tredcode.html" role="button" class="btn btn-outline-info" id="check_access_button" style="font-weight: bold; text-decoration: underline;">>> Trade with Tredcode</a>
+        </div>
+
+        <div class="px-0" style="width: 100%;" id="Top_Bar">
+          <!-- Range Slider -->
+          <div class="row mx-2 my-2 bg-color rounded">
+            <div class="col-10 col-md-11 py-3 text-light" id="Range_Slider">
+              <input type="text" class="mx-2 js-range-slider" name="fno_range" value="" />
+            </div>
+            <div class="col-2 col-md-1 ps-0 my-3 text-light d-flex justify-content-center align-items-center">
+              <button class="go_btn bg-color text-white font-weight-bold w-100 h-100 rounded" id="Submit" type="button" onclick="fetch_fno_data()">GO</button>
+            </div>
+          </div>
+          <div class="row mx-2 my-2">
+            <div class="col bg-color rounded text-light p-3">
+              <div class="row align-items-center g-3">
+                <div class="col-md-3 d-flex align-items-center">
+                  <span class="me-3">Sector</span>
+                  <select class="bg-faint rounded w-100 sector-filter" id="SectorFilter"></select>
+                </div>
+                <div class="col-md-3 d-flex align-items-center">
+                  <span class="me-3">Stock</span>
+                  <select class="bg-faint rounded w-100" id="StockFilter"></select>
+                </div>
+                <div class="col-md-3 d-flex align-items-center">
+                  <span class="me-3">Expiry</span>
+                  <select class="bg-faint rounded w-100" id="Expiry">
+                    <option id="1st_dropdown_value" value=""></option>
+                    <option id="2nd_dropdown_value" value=""></option>
+                  </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-center">
+                  <button class="go_btn bg-color text-white font-weight-bold w-100 h-100 rounded" id="Submit" type="button" onclick="fetch_fno_data()">GO</button>
+                </div>
+                <div class="col-md-1 text-end text-muted small" id="lastUpdated"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row mx-2 mb-2">
+          <div class="col-12 bg-color rounded">
+            <div class="my-2 text-white" style="font-size: 20px;font-weight: bold;">
+              <span>F&O Heatmap by Sector</span>
+              <a class="live"><i class="fa-solid fa-circle fa-sm"></i>&nbsp;ACTIVE</a>
+            </div>
+            <div class="dataTableContainer">
+              <div id="blur-background" class="d-none blur-background"></div>
+              <div class="rounded" id="fno_heatmap" style="min-height:50vh; width: 100%;"></div>
+              <div id="lock-icon" class="d-none lock-icon">
+                <div class="row d-flex justify-content-center"><i class="fa-solid fa-lock fa-5x"></i></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Options Analytics: OI Compass and PCR --
+        <div class="row my-2 mx-2">
+          <div class="col-lg-8 rounded bg-color px-2">
+            <div class="mx-2 row text-light font-weight-bold p-2 py-3 border-faint">
+              <div class="col">
+                <span class="h3">OI Compass</span>
+              </div>
+            </div>
+            <div class="dataTableContainer1">
+              <div id="blur-background" class="d-none blur-background"></div>
+              <div class="me-3" id="grouped_barchart"></div>
+              <div id="lock-icon" class="d-none lock-icon">
+                <div class="row d-flex justify-content-center"><i class="fa-solid fa-lock fa-5x"></i></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-4 rounded ps-2 pe-0" id="strech_me" style="height:100%; width: 33.3%;" name="strech me on lg-breakpoint">
+            <div class="dataTableContainer">
+              <div id="blur-background" class="d-none blur-background"></div>
+              <div class="row border-faint bg-color rounded-top h-40">
+                <div id="donutchart" class="col-sm-7 col-12 donutchart"></div>
+                <div class="col-sm-5 col-12 text-light m-auto text-center">
+                  <div class="row">
+                    <div class="col-12 mt-1 p-0 mb-2"><span class="text-light font-weight-normal h3">Change in P/C </span></div>
+                    <div class="col-12"><div class="cust_legend_heading h4"><i class="fa-solid fa-circle fa-2xs"></i> Change PE OI</div><div class="my-2"><span class="cust_legend_value chg_pe h4">0</span></div></div>
+                    <div class="col-12"><div class="cust_legend_heading h4"><i class="fa-solid fa-circle fa-2xs"></i> Change CE OI</div><div class="my-2"><span class="cust_legend_value chg_ce h4">0</span></div></div>
+                  </div>
+                </div>
+              </div>
+              <div class="row bg-color rounded-bottom h-40">
+                <div id="donutchart1" class="col-sm-7 col-12 donutchart d-flex align-items-center justify-content-center"></div>
+                <div class="col-sm-5 col-12 text-light m-auto text-center">
+                  <div class="row">
+                    <div class="col-12 mt-1 mb-2 p-0"><span class="text-light font-weight-normal mb-1 h3">P/C Ratio Net</span></div>
+                    <div class="col-12"><div class="cust_legend_heading h4"><i class="fa-solid fa-circle fa-2xs" style="color:#00d3c0"></i> Total PE OI</div><div class="my-2"><span class="cust_legend_value total_pe h4">0</span></div></div>
+                    <div class="col-12"><div class="cust_legend_heading h4"><i class="fa-solid fa-circle fa-2xs" style="color:#ff5253"></i> Total CE OI</div><div class="my-2"><span class="cust_legend_value total_ce h4">0</span></div></div>
+                    <div class="col-12"><div class="mt-3 my-2"><span class="cust_legend_value_2 h4"><b style="color:#6C7383">PCR:</b> <b class="h3 pcr_net"></b></span></div></div>
+                  </div>
+                </div>
+              </div>
+              <div id="lock-icon" class="d-none lock-icon">
+                <div class="row d-flex justify-content-center"><i class="fa-solid fa-lock fa-5x"></i></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- OI Tracker --
+        <div class="row mt-4 my-2 mx-2">
+          <div class="col-lg-12 bg-color rounded" style="min-height: 550px;">
+            <div class="text-light pt-3 pb-1 col_barchart_name">
+              <span class="h3 px-2" id="col_barchart_name">Open Interest Tracker</span> <a class="live"><i class="fa-solid fa-circle fa-sm"></i>&nbsp;ACTIVE</a>
+            </div>
+            <div class="dataTableContainer">
+              <div id="blur-background" class="d-none blur-background"></div>
+              <div class="" id="column_chart"></div>
+              <div id="lock-icon" class="d-none lock-icon">
+                <div class="row d-flex justify-content-center"><i class="fa-solid fa-lock fa-5x"></i></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row mt-5 pt-5 mx-5 px-5 mb-2" id="midcap_body_row" style="display: none;">
+          <div class="px-5 mt-5 pt-5 col-12 rounded text-center" id="midcap_body_col">
+            <span class="text-white" style="font-size: xxx-large; font-weight: bolder;" id="span_text_for_unauth">
+              Access Restricted. Please get access to view F&O heatmap.
+            </span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Ollama Assistant JavaScript -->
+  <script src="static/js/ollama_floating_widget.js"></script>
+
+  <!-- Footer -->
+  <footer class="footer">
+      <div class="d-sm-flex justify-content-center justify-content-sm-between">
+         <span class="text-muted text-center text-sm-left d-block d-sm-inline-block">Copyright ©
+            sharadaresearch.in 2023</span>
+      </div>
+   </footer>
+   <!-- End footer -->
+
+  <!-- F&O Signals Section -->
+  <div class="container-fluid px-0">
+
+    <div class="row mx-0">
+      <!-- Bullish Signals -->
+      <div class="col-md-6 px-2 mb-4">
+        <div class="bg-color text-light rounded h-100">
+          <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
+            <h5 class="mb-0 font-weight-bold">BULLISH SIGNALS <span class="badge bg-success">ACTIVE</span></h5>
+            <div style="width: 200px;">
+              <input type="text" id="bullishFilter" class="form-control form-control-sm bg-dark text-white border-0" placeholder="Search...">
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table id="bullishTable" class="table table-dark table-hover table-borderless mb-0">
+              <thead class="thead-dark">
+                <tr>
+                  <th>Symbol</th>
+                  <th class="text-end">Price %</th>
+                  <th class="text-end">OI %</th>
+                  <th class="text-end">Vol Ratio</th>
+                  <th class="text-end">Rel Str</th>
+                  <th class="text-end">Score</th>
+                </tr>
+              </thead>
+              <tbody id="bullishBody">
+                <tr>
+                  <td colspan="6" class="text-center py-3">Loading data...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bearish Signals -->
+      <div class="col-md-6 px-2 mb-4">
+        <div class="bg-color text-light rounded h-100">
+          <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
+            <h5 class="mb-0 font-weight-bold">BEARISH SIGNALS <span class="badge bg-danger">ACTIVE</span></h5>
+            <div style="width: 200px;">
+              <input type="text" id="bearishFilter" class="form-control form-control-sm bg-dark text-white border-0" placeholder="Search...">
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table id="bearishTable" class="table table-dark table-hover table-borderless mb-0">
+              <thead class="thead-dark">
+                <tr>
+                  <th>Symbol</th>
+                  <th class="text-end">Price %</th>
+                  <th class="text-end">OI %</th>
+                  <th class="text-end">Vol Ratio</th>
+                  <th class="text-end">Rel Str</th>
+                  <th class="text-end">Score</th>
+                </tr>
+              </thead>
+              <tbody id="bearishBody">
+                <tr>
+                  <td colspan="6" class="text-center py-3">Loading data...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--  <div class="col-md-6 bg-color text-light grid-margin rounded mx-3
+
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-NCHQ1VC2VL');
+  </script>
+
+  <script src="static/js/jquery_3.7.0.js"></script>
+  <script src="static/js/bootstrap.bundle.min.js"></script>
+  <script src="static/js/apexcharts.js"></script>
+  <script src="static/js/moment.min.js"></script>
+  <script src="static/js/ion.rangeSlider.min.js"></script>
+  <script src="static/js/jwt_decode.js"></script>
+  <script src="static/js/all.min.js"></script>
+  <script src="static/js/gg.min.js"></script>
+  <script src="static/js/vertical_navbar_js.js"></script>
+  <script src="static/js/fno_data_loader.js"></script>
+  <script src="static/js/fno.js"></script>
+  
+  <!-- Fyers Integration -->
+  <script src="static/js/fyers_integration.js"></script>
+  <script src="static/js/unified_chart_manager.js"></script>
+
+  <!-- Initialize Fyers Integration -->
+  <script>
+  $(document).ready(function() {
+      // Initialize unified chart manager
+      window.chartManager = new UnifiedChartManager();
+      
+      // Add click handlers for stock symbols
+      $(document).on('click', '[data-symbol]', function(e) {
+          e.preventDefault();
+          const symbol = $(this).data('symbol') || $(this).text().trim();
+          if (symbol && symbol !== 'Symbol') {
+              window.chartManager.openChart('NSE', symbol);
+          }
+      });
+      
+      // Make stock symbols clickable in tables
+      $(document).on('DOMNodeInserted', function(e) {
+          if ($(e.target).is('td') || $(e.target).find('td').length) {
+              // Add clickable attributes to first column (symbol column)
+              $('table tbody tr td:first-child').each(function() {
+                  const symbol = $(this).text().trim();
+                  if (symbol && symbol !== 'Symbol' && !$(this).hasClass('symbol-linked')) {
+                      $(this).addClass('symbol-linked').css('cursor', 'pointer');
+                      $(this).attr('data-symbol', symbol);
+                      $(this).attr('title', 'Click to open chart in Fyers');
+                  }
+              });
+          }
+      });
+  });
+  </script>
+  
+  <script>
+    // F&O Signals JavaScript
+    $(document).ready(function() {
+      // Initialize DataTables
+      const bullishTable = $('#bullishTable').DataTable({
+        paging: false,
+        searching: true,
+        info: false,
+        order: [[5, 'desc']], // Sort by score descending
+        columnDefs: [
+          { targets: [1, 2, 3, 4, 5], className: 'text-center' }
+        ]
+      });
+
+      const bearishTable = $('#bearishTable').DataTable({
+        paging: false,
+        searching: true,
+        info: false,
+        order: [[5, 'desc']], // Sort by score descending
+        columnDefs: [
+          { targets: [1, 2, 3, 4, 5], className: 'text-center' }
+        ]
+      });
+
+      // Filter inputs
+      $('#bullishFilter').on('keyup', function() {
+        bullishTable.search(this.value).draw();
+      });
+
+      $('#bearishFilter').on('keyup', function() {
+        bearishTable.search(this.value).draw();
+      });
+
+      // Load data
+      loadFNOData();
+      
+      // Refresh data every 5 minutes
+      setInterval(loadFNOData, 300000);
+    });
+
+    // Function to load F&O data
+    async function loadFNOData() {
+      try {
+        // Update last updated time
+        const now = new Date();
+        $('#last-updated').text(`Last updated: ${now.toLocaleTimeString()}`);
+        
+        // Load bullish signals
+        const bullishResponse = await fetch('/api/fno/signals/bullish');
+        const bullishData = await bullishResponse.json();
+        
+        if (bullishData.status === 'success') {
+          updateTable('bullishTable', bullishData.data);
+          
+          // Update market sentiment
+          if (bullishData.sentiment) {
+            updateSentiment(bullishData.sentiment);
+          }
+        }
+        
+        // Load bearish signals
+        const bearishResponse = await fetch('/api/fno/signals/bearish');
+        const bearishData = await bearishResponse.json();
+        
+        if (bearishData.status === 'success') {
+          updateTable('bearishTable', bearishData.data);
+        }
+        
+      } catch (error) {
+        console.error('Error loading F&O data:', error);
+        showError('Error loading F&O data. Please try again later.');
+      }
+    }
+    
+    // Function to update table with data
+    function updateTable(tableId, data) {
+      const table = $(`#${tableId}`).DataTable();
+      table.clear();
+      
+      data.forEach(item => {
+        const priceClass = item.price_change_pct >= 0 ? 'text-success' : 'text-danger';
+        const oiClass = item.oi_change_pct >= 0 ? 'text-success' : 'text-danger';
+        
+        table.row.add([
+          item.symbol,
+          `<span class="${priceClass}">${item.price_change_pct.toFixed(2)}%</span>`,
+          `<span class="${oiClass}">${item.oi_change_pct.toFixed(2)}%</span>`,
+          item.volume_ratio.toFixed(2) + 'x',
+          item.relative_strength.toFixed(2),
+          item.score.toFixed(2)
+        ]);
+      });
+      
+      table.draw();
+    }
+    
+    // Function to update market sentiment display
+    function updateSentiment(sentiment) {
+      const sentimentEl = $('#sentiment-value');
+      const descriptionEl = $('#sentiment-description');
+      const progressEl = $('#sentiment-progress');
+      
+      // Remove all sentiment classes
+      sentimentEl.removeClass('text-success text-danger text-warning');
+      progressEl.removeClass('bg-success bg-danger bg-warning');
+      
+      // Update based on sentiment
+      if (sentiment.value === 'BUY') {
+        sentimentEl.addClass('text-success');
+        progressEl.addClass('bg-success');
+      } else if (sentiment.value === 'SELL') {
+        sentimentEl.addClass('text-danger');
+        progressEl.addClass('bg-danger');
+      } else {
+        sentimentEl.addClass('text-warning');
+        progressEl.addClass('bg-warning');
+      }
+      
+      // Update values
+      sentimentEl.text(sentiment.value);
+      descriptionEl.text(sentiment.description);
+      
+      // Update progress bar (convert -1 to 1 range to 0-100%)
+      const progressPercent = ((sentiment.score + 1) / 2) * 100;
+      progressEl.css('width', `${progressPercent}%`);
+      progressEl.attr('aria-valuenow', progressPercent);
+    }
+    
+    // Function to show error messages
+    function showError(message) {
+      // You can implement a toast or alert system here
+      console.error(message);
+    }
+  </script>
+</body>
+
+</html>

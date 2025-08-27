@@ -2,17 +2,17 @@ from enum import Enum
 from typing import Optional, Dict, Any
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field, validator
-from backend.app.db.connection import get_engine, db_session
-from backend.app.db.models import TradingJournal
+from app.db.connection import get_engine, db_session
+from app.db.models import TradingJournal
 
 router = APIRouter(prefix="/journal", tags=["journal"]) 
 
 # Choose service backend dynamically
 USE_DB = get_engine() is not None
 if USE_DB:
-    from backend.app.services import journal_db_service as journal
+    from app.services import journal_db_service as journal
 else:
-    from backend.app.services import journal_service as journal
+    from app.services import journal_service as journal
 
 
 class TradeSide(str, Enum):

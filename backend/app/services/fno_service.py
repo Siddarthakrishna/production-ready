@@ -1,9 +1,9 @@
 from typing import Dict, Optional
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
-from backend.app.db.connection import get_engine
-from backend.app.utils.cache import cache
-from backend.app.utils.observability import observe
+from app.db.connection import get_engine
+from app.utils.cache import cache
+from app.utils.observability import observe
 
 
 @cache.cached(ttl_seconds=5)

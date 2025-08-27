@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Query
-from backend.app.services import index_service
-from backend.app.api.schemas import (
+from app.services import index_service
+from app.api.schemas import (
     IndexExpiry,
     IndexOI,
     IndexPCR,

@@ -63,21 +63,21 @@ async def get_skills():
 # Import and include financial application routers
 try:
     # Import routers from the financial application
-    from backend.app.api.index import router as index_router
-    from backend.app.api.fii_dii import router as fii_dii_router
-    from backend.app.api.money_flux import router as money_flux_router
-    from backend.app.api.fno import router as fno_router
-    from backend.app.api.sector import router as sector_router
-    from backend.app.api.market_depth import router as market_depth_router
-    from backend.app.api.pro_setup import router as pro_setup_router
-    from backend.app.api.swing import router as swing_router
-    from backend.app.api.journal import router as journal_router
-    from backend.app.api.watchlist import router as watchlist_router
-    from backend.app.api.mock_data import router as mock_data_router
-    from backend.app.api.ollama import router as ollama_router
-    from backend.app.api.fyers import router as fyers_router
+    from app.api.index import router as index_router
+    from app.api.fii_dii import router as fii_dii_router
+    from app.api.money_flux import router as money_flux_router
+    from app.api.fno import router as fno_router
+    from app.api.sector import router as sector_router
+    from app.api.market_depth import router as market_depth_router
+    from app.api.pro_setup import router as pro_setup_router
+    from app.api.swing import router as swing_router
+    from app.api.journal import router as journal_router
+    from app.api.watchlist import router as watchlist_router
+    from app.api.mock_data import router as mock_data_router
+    from app.api.ollama import router as ollama_router
+    from app.api.fyers import router as fyers_router
     # Import the new unified study API
-    from backend.app.api.unified_study import router as unified_study_router
+    from app.api.unified_study import router as unified_study_router
 
     # Include the routers
     api.include_router(index_router)

@@ -9,7 +9,7 @@ import numpy as np
 from fastapi import HTTPException, status
 
 # Local imports
-from backend.app.services.study_utils import (
+from app.services.study_utils import (
     STUDY_DATA_ALLOW, 
     STUDY_SYMBOL_ALLOW,
     calculate_sectorial_view, 
@@ -23,7 +23,7 @@ from backend.app.services.study_utils import (
     calculate_volume_rankings,
     calculate_heatmap_data
 )
-from backend.app.services.param_normalizer import (
+from app.services.param_normalizer import (
     ParamNormalizer,
     normalize_market_depth_data,
     normalize_sectorial_data,

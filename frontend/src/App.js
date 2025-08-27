@@ -14,9 +14,6 @@ import Testimonials from "./components/landing/Testimonials";
 import Contact from "./components/landing/Contact";
 import Footer from "./components/shared/Footer";
 
-// Financial application components
-import Login from "./components/landing/Login";
-
 const LandingPage = () => {
   return (
     <div className="min-h-screen bg-gray-900">
@@ -52,14 +49,6 @@ const LandingPage = () => {
   );
 };
 
-const LoginPage = () => {
-  return (
-    <div className="min-h-screen bg-gray-900">
-      <Login />
-    </div>
-  );
-};
-
 // For the financial application pages, we'll render them directly from the HTML files
 const FinancialPage = ({ pageName }) => {
   // This is a placeholder - in a real implementation, we would either:
@@ -83,19 +72,29 @@ const FinancialPage = ({ pageName }) => {
   );
 };
 
+// Import the Dashboard component
+import Dashboard from "./components/financial/Dashboard";
+
 function App() {
   return (
     <div className="App bg-gray-900">
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<LandingPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/dashboard" element={<FinancialPage pageName="Dashboard" />} />
+          <Route path="/landing" element={<LandingPage />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/fii_dii_data" element={<FinancialPage pageName="FII/DII Data" />} />
           <Route path="/fno" element={<FinancialPage pageName="F&O Analysis" />} />
           <Route path="/sectorial_flow" element={<FinancialPage pageName="Sectorial Flow" />} />
           <Route path="/market_depth" element={<FinancialPage pageName="Market Depth" />} />
           <Route path="/moneyflux" element={<FinancialPage pageName="Money Flux" />} />
+          <Route path="/pro_setup" element={<FinancialPage pageName="Pro Setups" />} />
+          <Route path="/swing_center" element={<FinancialPage pageName="Swing Center" />} />
+          <Route path="/index_analysis" element={<FinancialPage pageName="Index Analysis" />} />
+          <Route path="/scanners" element={<FinancialPage pageName="Scanners" />} />
+          <Route path="/trading_journal" element={<FinancialPage pageName="Trading Journal" />} />
+          <Route path="/watchlist" element={<FinancialPage pageName="Watchlist" />} />
+          <Route path="/ollama_assistant" element={<FinancialPage pageName="Ollama Assistant" />} />
         </Routes>
       </BrowserRouter>
     </div>

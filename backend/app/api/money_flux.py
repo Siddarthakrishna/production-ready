@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Query
-from backend.app.services.money_flux_service import (
+from app.services.money_flux_service import (
     get_heatmap_snapshot,
     get_sentiment_analysis,
     get_pcr_calculations,
@@ -7,7 +7,7 @@ from backend.app.services.money_flux_service import (
     get_ohlc_chart_data,
     get_expiry_data
 )
-from backend.app.api.schemas import (
+from app.api.schemas import (
     MoneyfluxHeatmap,
     MoneyfluxSentiment,
     MoneyfluxPCR,
