@@ -1,53 +1,73 @@
 from __future__ import annotations
 from datetime import date, datetime, timedelta
 from functools import lru_cache
-from typing import Dict, Optional, List
+from typing import Dict, Optional, List, Any
 import random
-from app.services.param_normalizer import normalize_fii_dii_data
-
+from app.services.param_normalizer import ParamNormalizer
 
 @lru_cache(maxsize=128)
 def get_net(on: Optional[date] = None) -> Dict:
+    """
+    Get FII/DII net values for a specific date
+    
+    Returns:
+        Dictionary containing FII/DII net values with metadata
+    """
     # Placeholder implementation; replace with DB or external source
     d = (on or date.today()).isoformat()
     return {
         "date": d,
-        "fiiBuy": 225_300_000,
-        "fiiSell": 148_000_000,
-        "diiBuy": 102_500_000,
-        "diiSell": 98_500_000,
-        "fiiNet": 77_300_000,
-        "diiNet": 4_000_000,
-        "netTotal": 81_300_000,
+        "fii_buy": 225_300_000,
+        "fii_sell": 148_000_000,
+        "dii_buy": 102_500_000,
+        "dii_sell": 98_500_000,
+        "fii_net": 77_300_000,
+        "dii_net": 4_000_000,
+        "total_net": 81_300_000,
     }
-
 
 @lru_cache(maxsize=128)
 def get_breakdown(range_: str = "1M") -> Dict:
+    """
+    Get time-bucketed breakdown of FII/DII data
+    
+    Args:
+        range_: Time range for breakdown (1W, 1M, 3M, 6M, 1Y)
+        
+    Returns:
+        Dictionary containing time-bucketed FII/DII data
+    """
     # Placeholder time-bucketed breakdown
     buckets = ["W1", "W2", "W3", "W4"] if range_.upper() == "1M" else ["D1", "D2", "D3", "D4", "D5"]
     series = [
-        {"bucket": b, "fiiNet": 10_000_000 + i * 1_000_000, "diiNet": -1_000_000 + i * 500_000}
+        {
+            "bucket": b, 
+            "fii_net": 10_000_000 + i * 1_000_000, 
+            "dii_net": -1_000_000 + i * 500_000,
+            "total_net": 9_000_000 + i * 1_500_000,
+            "flow_ratio": abs(10.0 + i) / max(abs(-1.0 + i * 0.5), 1)
+        }
         for i, b in enumerate(buckets)
     ]
-    return {"range": range_, "series": series}
-
+    
+    # Normalize the data using ParamNormalizer
+    normalized_series = []
+    for item in series:
+        normalized = ParamNormalizer.normalize(item, "fii_dii")
+        normalized_series.append({
+            **normalized,
+            "bucket": item["bucket"]  # Keep the bucket identifier
+        })
+    
+    return {"range": range_, "series": normalized_series}
 
 def get_fii_dii_data_unified() -> List[Dict]:
     """
     Get FII/DII data in unified param format
     
-    Returns data with unified param structure:
-    - Symbol: Date identifier
-    - param_0: FII Net value  
-    - param_1: DII Net value
-    - param_2: Total Net (FII + DII)
-    - param_3: Flow ratio/momentum
-    - param_4: DateTime
+    Returns:
+        List of dictionaries containing FII/DII data in unified parameter format
     """
-    # Mock FII/DII data for demonstration
-    # In production, this would fetch from database
-    
     data = []
     base_date = datetime.now() - timedelta(days=30)
     
@@ -66,22 +86,27 @@ def get_fii_dii_data_unified() -> List[Dict]:
         total_net = fii_net + dii_net
         flow_ratio = abs(fii_net) / max(abs(dii_net), 1) if dii_net != 0 else 1.0
         
-        # Create unified param format
+        # Create record with raw values
         record = {
             "Symbol": current_date.strftime('%d-%m-%Y'),
-            "param_0": round(fii_net, 2),  # FII Net
-            "param_1": round(dii_net, 2),  # DII Net
-            "param_2": round(total_net, 2),  # Total Net
-            "param_3": round(flow_ratio, 2),  # Flow ratio
-            "param_4": current_date.strftime('%Y-%m-%d %H:%M:%S'),  # DateTime
-            # Keep additional fields for compatibility
+            "fii_net": round(fii_net, 2),
+            "dii_net": round(dii_net, 2),
+            "total_net": round(total_net, 2),
+            "flow_ratio": round(flow_ratio, 2),
             "fii_buy": round(fii_buy, 2),
-            "fii_sell": round(fii_sell, 2), 
+            "fii_sell": round(fii_sell, 2),
             "dii_buy": round(dii_buy, 2),
-            "dii_sell": round(dii_sell, 2)
+            "dii_sell": round(dii_sell, 2),
+            "timestamp": current_date.strftime('%Y-%m-%d %H:%M:%S')
         }
         
-        data.append(record)
+        # Normalize the record using ParamNormalizer
+        normalized_record = ParamNormalizer.normalize(record, "fii_dii")
+        
+        # Keep the Symbol in the normalized record
+        normalized_record["Symbol"] = record["Symbol"]
+        
+        data.append(normalized_record)
     
     # Return most recent data first
-    return sorted(data, key=lambda x: x['param_4'], reverse=True)
+    return sorted(data, key=lambda x: x['params']['param_4']['value'], reverse=True)

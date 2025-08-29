@@ -1,3 +1,140 @@
+/* FII DII Data Component Styles */
+
+/* Table container */
+#fii_dii_datatable_wrapper {
+    background: #1c1c1c;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Table header */
+#fii_dii_datatable thead th {
+    background-color: #2a2a2a;
+    color: #ffffff;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 12px;
+    padding: 10px 8px;
+    text-align: center;
+    border-bottom: 2px solid #3a3a3a;
+}
+
+/* Table cells */
+#fii_dii_datatable tbody td {
+    padding: 8px;
+    color: #e0e0e0;
+    border-bottom: 1px solid #2d2d2d;
+    text-align: center;
+    vertical-align: middle;
+}
+
+/* Hover effect */
+#fii_dii_datatable tbody tr:hover {
+    background-color: #2a2a2a;
+    cursor: pointer;
+}
+
+/* Value styling */
+.positive-value {
+    color: #00d3c0;
+    font-weight: 600;
+}
+
+.negative-value {
+    color: #ff5253;
+    font-weight: 600;
+}
+
+.neutral-value {
+    color: #e0e0e0;
+}
+
+/* Total net cell */
+.total-net {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+.total-net.positive-value {
+    background-color: #308f86;
+    color: white;
+}
+
+.total-net.negative-value {
+    background-color: #ff5253;
+    color: white;
+}
+
+/* Chart container */
+#fii_dii_chart {
+    background: #1c1c1c;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    #fii_dii_datatable_wrapper {
+        padding: 10px;
+    }
+    
+    #fii_dii_datatable thead th,
+    #fii_dii_datatable tbody td {
+        padding: 6px 4px;
+        font-size: 12px;
+    }
+    
+    .total-net {
+        padding: 2px 5px;
+        font-size: 12px;
+    }
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #2a2a2a;
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #4a4a4a;
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #5a5a5a;
+}
+
+/* Loading state */
+.loading {
+    position: relative;
+    opacity: 0.7;
+}
+
+.loading:after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(28, 28, 28, 0.7) url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 50 50"><path fill="%2300d3c0" d="M25.251,6.461c-10.318,0-18.683,8.365-18.683,18.683h4.068c0-8.071,6.543-14.615,14.615-14.615V6.461z"><animateTransform attributeType="xml" attributeName="transform" type="rotate" from="0 25 25" to="360 25 25" dur="0.6s" repeatCount="indefinite"/></path></svg>') no-repeat center center;
+    background-size: 40px 40px;
+    z-index: 1000;
+    border-radius: 8px;
+}
+
 .grid-margin {
   margin-bottom: 2rem;
 }
@@ -247,13 +384,57 @@ table {
 }
 
 @media (max-width: 992px) {
-  .dataTables_scrollHeadInner,
-  table {
-    width: 1000px !important;
+  .dataTables_scrollBody {
+    overflow-x: auto !important;
   }
+}
 
-  .dataTableFD {
-    width: 1000px !important;
+@media (max-width: 992px) {
+  .dataTables_wrapper .row:first-child {
+    display: none !important;
+  }
+}
+
+/*------ only dhan user ------------*/
+.dataTableContainer {
+  height: 100%;
+  position: relative;
+  overflow: hidden; /* Prevent blurred background from overflowing */
+}
+
+.blur-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  backdrop-filter: blur(4px);
+  z-index: 1; /* Ensure the blurred background appears above the table */
+}
+
+.new_table.table-striped.table-borderless {
+  position: relative; /* Make sure the table stays within the container */
+  z-index: 0; /* Ensure the table appears below the blurred background */
+}
+
+.lock-icon {
+  color: #fff;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2; /* Ensure the lock icon appears above the table and blurred background */
+}
+
+.lock-icon span {
+  background-color: #878787;
+  border-radius: 8px;
+}
+
+@media (max-width: 450px) {
+  .card-body.barchart-percentage-wrap.chart_container_7 {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
   }
 }
 
@@ -499,54 +680,5 @@ tbody {
 @media (max-width: 992px) {
   .dataTables_scrollBody {
     overflow-x: auto !important;
-  }
-}
-
-@media (max-width: 992px) {
-  .dataTables_wrapper .row:first-child {
-    display: none !important;
-  }
-}
-
-/*------ only dhan user ------------*/
-.dataTableContainer {
-  height: 100%;
-  position: relative;
-  overflow: hidden; /* Prevent blurred background from overflowing */
-}
-
-.blur-background {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  backdrop-filter: blur(4px);
-  z-index: 1; /* Ensure the blurred background appears above the table */
-}
-
-.new_table.table-striped.table-borderless {
-  position: relative; /* Make sure the table stays within the container */
-  z-index: 0; /* Ensure the table appears below the blurred background */
-}
-
-.lock-icon {
-  color: #fff;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 2; /* Ensure the lock icon appears above the table and blurred background */
-}
-
-.lock-icon span {
-  background-color: #878787;
-  border-radius: 8px;
-}
-
-@media (max-width: 450px) {
-  .card-body.barchart-percentage-wrap.chart_container_7 {
-    padding-left: 0 !important;
-    padding-right: 0 !important;
   }
 }

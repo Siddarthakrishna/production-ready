@@ -1,198 +1,158 @@
-Sharada Research – Unified Param System (Final)
+Here’s the situation:
 
-This document defines the unified param structure for the Sharada Research project.
-It applies to database, backend, frontend, and all visualizations (bar charts, heatmaps, tables).
+1. Current State of Params
 
-🔑 Unified Param Dictionary
+Every module is using local param_0, param_1, … coming from backend responses.
 
-Every dataset row must follow this structure:
+Some files (like swing_center.js) apply additional calculation logic before pushing into frontend charts/tables.
 
-Field	Description
-Symbol	Stock / Index identifier (e.g. NIFTY, RELIANCE)
-param_0	Last Trading Price (LTP)
-param_1	Previous Close Price
-param_2	% Change from previous close
-param_3	R-Factor (momentum / relative factor)
-param_4	DateTime (YYYY-MM-DD HH:mm:ss)
+Others (like fii_dii_data.js) reorder/transform values but don’t rename params.
 
-✅ Important Rules
+table.json already provides a mapping of param indices → meaning (e.g. param_0 = % Change, param_1 = Volume Spike, etc.).
 
-param_4 always stores both date and time together.
+Right now, each module is duplicating assumptions of what param_0, param_1 mean. This is fragile.
 
-Same meaning applies across all frontend pages, backend endpoints, and DB tables.
+2. What You Asked
 
-🗄 Database (Postgres Schema)
-CREATE TABLE market_data (
-    id SERIAL PRIMARY KEY,
-    symbol VARCHAR(50) NOT NULL,
-    param_0 NUMERIC,   -- LTP
-    param_1 NUMERIC,   -- Previous Close
-    param_2 NUMERIC,   -- % Change
-    param_3 NUMERIC,   -- R-Factor
-    param_4 TIMESTAMP  -- Date + Time
-);
+You want to:
 
+Keep params as-is (param_0, param_1, …).
 
-Deprecate old descriptive columns (ltp, prev_close, %chg, etc.).
+Create a global param definition (based on table.json) → so both backend and frontend consume the same dictionary.
 
-Normalize all incoming data into param format before storage.
+Update all modules so they don’t “guess” what each param means, but import/use global param metadata.
 
-⚙ Backend Standards
+Provide this in a README.md for your team + sample before/after JSON transformation.
 
-API JSON Response
+3. Fix Plan (Global Params System)
+(A) Define Global Params (from table.json)
+
+Create a global_params.json at root:
 
 {
-  "Symbol": "RELIANCE",
-  "param_0": 2780.50,
-  "param_1": 2765.20,
-  "param_2": 0.55,
-  "param_3": 1.12,
-  "param_4": "2025-08-26 10:15:30"
+  "param_0": "Price Change %",
+  "param_1": "Volume Spike",
+  "param_2": "Delivery %",
+  "param_3": "OI Change",
+  "param_4": "Momentum Score",
+  "param_5": "Sector Strength",
+  "param_6": "Relative Flow",
+  "param_7": "Liquidity Sweep",
+  "param_8": "Swing Center",
+  "param_9": "Money Flux"
 }
 
 
-Normalization Utility
+(Fill this completely from your table.json — above is just sample.)
 
-Create a function normalizeToParams(rawData) that converts provider fields into the param structure.
+(B) Backend Enforcement
 
-Example mapping:
+Whenever backend sends data, it should wrap raw params into unified param dictionary.
 
-last_trade_price → param_0
+Before (Raw JSON):
 
-prev_close → param_1
-
-pct_change → param_2
-
-rfactor → param_3
-
-timestamp → param_4
-
-Endpoints
-
-All API routes (/api/prosetup, /api/market-depth, etc.) must send normalized param JSON.
-
-🎨 Frontend Standards
-General Rules
-
-All DataTables and charts must consume param_0 … param_4.
-
-No frontend should directly map raw provider field names.
-
-Tables
-
-Example DataTable config for every page:
-
-columns: [
-  { data: 'Symbol' },
-  { data: 'param_0' }, // LTP
-  { data: 'param_1' }, // Prev Close
-  { data: 'param_2' }, // % Change
-  { data: 'param_3' }, // R-Factor
-  { data: 'param_4' }  // DateTime
-]
-
-Charts / Visualizations
-
-Bar Charts (price plots, depth, swing, setup):
-Use param_0 (LTP) as the Y-axis value.
-
-y: value.param_0
+{
+  "Symbol": "RELIANCE",
+  "param_0": 1.56,
+  "param_1": 250000,
+  "param_2": 67.5
+}
 
 
-Heatmaps (sectorial flow, money flux):
-Use param_2 (% Change) for heatmap coloring (green/red scale).
+After (Unified JSON):
 
-colorValue: value.param_2
+{
+  "Symbol": "RELIANCE",
+  "params": {
+    "param_0": { "label": "Price Change %", "value": 1.56 },
+    "param_1": { "label": "Volume Spike", "value": 250000 },
+    "param_2": { "label": "Delivery %", "value": 67.5 }
+  }
+}
+
+(C) Frontend Usage
+
+Instead of directly calling value.param_0, frontend should map like:
+
+const { params } = value;
+let priceChange = params.param_0.value;
+let volumeSpike = params.param_1.value;
 
 
-Momentum / Swing Strength Bars:
-Use param_3 (R-Factor) for swing/momentum visualization.
+Charts/tables stay unchanged, but now they read from global param dictionary.
 
-height: value.param_3
+(D) Swing Center Calculation
+
+You mentioned you’ve changed the way of calculations for Swing Center.
+✅ Since we now have a global_params.json, you only need to define:
+
+"param_8": "Swing Center (Custom Calculation v2)"
 
 
-Date & Time labels:
-Always use param_4.
+and make sure swing_center.js uses that consistently.
+This ensures even custom-calculated params remain globally tagged.
 
-📊 File-by-File Migration Notes
-File	Current Use	Visualization	Fix Required
-market_depth.js	value.param_0 as y	Bar chart (price plot)	Keep as LTP (param_0)
-pro_setup.js	value.param_0	Bar chart (price/momentum)	Keep as LTP; shift % Change to param_2
-scanner.js	Array indexes [0], [1]	DataTable	🔄 Refactor into param JSON (param_0..4)
-sectorial_flow.js	param_0..3	Heatmap / sector bars	Map heatmap color → param_2; price bars → param_0
-swing_center.js	param_0..3	Swing bar/heatmap	LTP = param_0; % Change heatmap = param_2; momentum = param_3
-money_flux.js	param_0..3	Heatmap (capital flow)	Price axis = param_0; color scale = param_2; momentum = param_3
-index_analysis.js	(similar pattern)	Index bar/heatmap	Align with unified mapping
-🛠 Migration Checklist
-Backend
+4. README.md for Your Team (Draft)
+# Global Params Integration Guide
 
- Add normalizeToParams() util.
+## Why
+Currently, each module assumes different meanings for `param_0`, `param_1`, etc.  
+This causes mismatches between backend and frontend.  
+We now unify all params via a single `global_params.json`.
 
- Update all endpoints to return param JSON.
+---
 
- Deprecate descriptive keys.
+## Global Param Dictionary
+Defined in: `/config/global_params.json`
 
-Database
+Example:
 
- Migrate schema to param_0..4.
+```json
+{
+  "param_0": "Price Change %",
+  "param_1": "Volume Spike",
+  "param_2": "Delivery %",
+  "param_3": "OI Change",
+  "param_4": "Momentum Score",
+  "param_5": "Sector Strength",
+  "param_6": "Relative Flow",
+  "param_7": "Liquidity Sweep",
+  "param_8": "Swing Center (v2 Calculation)",
+  "param_9": "Money Flux"
+}
 
- Map old fields (ltp, volume, etc.) → unified params.
 
-Frontend
+This file is the single source of truth.
 
- Update all DataTables to use param columns.
+Data Transformation
+Before (Raw Response from API)
+{
+  "Symbol": "RELIANCE",
+  "param_0": 1.56,
+  "param_1": 250000,
+  "param_2": 67.5
+}
 
- Fix scanner.js to param JSON instead of array indexes.
+After (Unified Response)
+{
+  "Symbol": "RELIANCE",
+  "params": {
+    "param_0": { "label": "Price Change %", "value": 1.56 },
+    "param_1": { "label": "Volume Spike", "value": 250000 },
+    "param_2": { "label": "Delivery %", "value": 67.5 }
+  }
+}
 
- Check all charts:
+Backend Task
 
-param_0 for bar height (price).
+Ensure every API wraps raw values into the unified format before sending to frontend.
 
-param_2 for heatmap coloring.
+Use global_params.json to attach correct labels.
 
-param_3 for momentum.
+Frontend Task
 
-param_4 for timestamps.
+Replace value.param_0 with value.params.param_0.value
 
-QA
+Render tooltips/headers using value.params.param_0.label
 
- Regression test tables and charts.
-
- Validate consistent rendering across all pages.
-
-🔄 Data Flow
-flowchart LR
-    DB[(Postgres: param_0..param_4)] --> BE[Backend Normalizer]
-    BE --> FE[Frontend Pages]
-
-    subgraph DB
-        P0[param_0: LTP]  
-        P1[param_1: Prev Close]  
-        P2[param_2: % Change]  
-        P3[param_3: R-Factor]  
-        P4[param_4: DateTime]  
-    end
-
-    subgraph FE
-        Pro[pro_setup.js]  
-        MD[market_depth.js]  
-        Swing[swing_center.js]  
-        Sector[sectorial_flow.js]  
-        MF[money_flux.js]  
-        Scan[scanner.js]  
-        Index[index_analysis.js]  
-    end
-
-✅ End Result
-
-All pages aligned with one param dictionary.
-
-Bar charts → use param_0.
-
-Heatmaps → use param_2.
-
-Momentum bars → use param_3.
-
-Tables → show all params consistently.
-
-Future-proof → new fields become param_5, param_6, etc.
+All charts (swing_center.js, sectorial_flow.js, scanner.js, etc.) should reference the unified param dictionary.
