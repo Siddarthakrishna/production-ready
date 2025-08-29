@@ -3,17 +3,23 @@ from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 from app.db.connection import get_engine
 from app.utils.cache import cache
+from app.services.param_normalizer import ParamNormalizer
 from datetime import datetime, timedelta
 import json
 import math
 import numpy as np
+import random
 
 
 @cache.cached(ttl_seconds=60)
 def get_heatmap_snapshot(index_name: str) -> Dict:
     engine = get_engine()
     if not engine:
-        return {"index": index_name, "heatValue": None, "ohlc": None, "volume": None, "liveExpiry": None}
+        return {
+            "data": [],
+            "name": f"{index_name} Heatmap",
+            "timestamp": datetime.now().isoformat()
+        }
     try:
         with engine.connect() as conn:
             row = conn.execute(
@@ -28,17 +34,42 @@ def get_heatmap_snapshot(index_name: str) -> Dict:
                 ),
                 {"index": index_name},
             ).mappings().first()
+        
         if not row:
-            return {"index": index_name, "heatValue": None, "ohlc": None, "volume": None, "liveExpiry": None}
+            # Return default structure with parameter format
+            raw_data = [{
+                "Symbol": index_name,
+                "heatmap": 0.0,
+                "sentiment_score": 0.0,
+                "price": 0.0,
+                "volume": 0,
+                "timestamp": datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            }]
+        else:
+            raw_data = [{
+                "Symbol": row["index_name"],
+                "heatmap": float(row["heat_value"]) if row["heat_value"] is not None else 0.0,
+                "sentiment_score": 0.0,  # Will be calculated separately
+                "price": 0.0,  # Extract from OHLC if available
+                "volume": int(row["volume"]) if row["volume"] is not None else 0,
+                "timestamp": row["updated_at"].strftime('%Y-%m-%d %H:%M:%S') if row["updated_at"] else datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            }]
+        
+        # Normalize using money_flux module mapping
+        normalized_data = ParamNormalizer.normalize(raw_data, module_name="money_flux")
+        
         return {
-            "index": row["index_name"],
-            "heatValue": float(row["heat_value"]) if row["heat_value"] is not None else None,
-            "ohlc": row["ohlc"],
-            "volume": int(row["volume"]) if row["volume"] is not None else None,
-            "liveExpiry": row["live_expiry"].isoformat() if row["live_expiry"] is not None else None,
+            "data": normalized_data if isinstance(normalized_data, list) else [normalized_data],
+            "name": f"{index_name} Heatmap",
+            "timestamp": datetime.now().isoformat()
         }
+        
     except SQLAlchemyError:
-        return {"index": index_name, "heatValue": None, "ohlc": None, "volume": None, "liveExpiry": None}
+        return {
+            "data": [],
+            "name": f"{index_name} Heatmap",
+            "timestamp": datetime.now().isoformat()
+        }
 
 
 @cache.cached(ttl_seconds=30)
@@ -47,13 +78,9 @@ def get_sentiment_analysis(index_name: str, expiry: Optional[str] = None) -> Dic
     engine = get_engine()
     if not engine:
         return {
-            "index": index_name,
-            "sentimentScore": None,
-            "sentimentDirection": "neutral",
-            "calculatedAt": None,
-            "expiry": expiry,
-            "volumeRatio": None,
-            "priceAction": None
+            "data": [],
+            "name": f"{index_name} Sentiment Analysis",
+            "timestamp": datetime.now().isoformat()
         }
     
     try:
@@ -74,45 +101,50 @@ def get_sentiment_analysis(index_name: str, expiry: Optional[str] = None) -> Dic
             ).mappings().first()
             
             if not option_data or not option_data["option_chain"]:
-                return {
-                    "index": index_name,
-                    "sentimentScore": 0.0,
-                    "sentimentDirection": "neutral",
-                    "calculatedAt": datetime.now().isoformat(),
-                    "expiry": expiry,
-                    "volumeRatio": None,
-                    "priceAction": None
-                }
+                raw_data = [{
+                    "Symbol": index_name,
+                    "sentiment_score": 0.0,
+                    "sentiment_direction": "neutral",
+                    "pcr_ratio": 1.0,
+                    "volatility": 0.0,
+                    "volume": 0,
+                    "timestamp": datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                }]
+            else:
+                # Complex sentiment calculation based on MoneyFlux logic
+                option_chain = option_data["option_chain"]
+                sentiment_score = _calculate_sentiment_score(option_chain, option_data)
+                
+                direction = "neutral"
+                if sentiment_score > 1.5:
+                    direction = "bullish"
+                elif sentiment_score < -1.5:
+                    direction = "bearish"
+                
+                raw_data = [{
+                    "Symbol": index_name,
+                    "sentiment_score": round(sentiment_score, 4),
+                    "sentiment_direction": direction,
+                    "pcr_ratio": 1.0,  # Will be calculated separately
+                    "volatility": float(option_data.get("volatility", 0)) if option_data.get("volatility") else 0.0,
+                    "volume": int(option_data.get("volume", 0)) if option_data.get("volume") else 0,
+                    "timestamp": datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                }]
             
-            # Complex sentiment calculation based on MoneyFlux logic
-            option_chain = option_data["option_chain"]
-            sentiment_score = _calculate_sentiment_score(option_chain, option_data)
-            
-            direction = "neutral"
-            if sentiment_score > 1.5:
-                direction = "bullish"
-            elif sentiment_score < -1.5:
-                direction = "bearish"
+            # Normalize using money_flux module mapping
+            normalized_data = ParamNormalizer.normalize(raw_data, module_name="money_flux")
             
             return {
-                "index": index_name,
-                "sentimentScore": round(sentiment_score, 4),
-                "sentimentDirection": direction,
-                "calculatedAt": datetime.now().isoformat(),
-                "expiry": expiry,
-                "volumeRatio": option_data.get("volume"),
-                "priceAction": option_data.get("price_change")
+                "data": normalized_data if isinstance(normalized_data, list) else [normalized_data],
+                "name": f"{index_name} Sentiment Analysis",
+                "timestamp": datetime.now().isoformat()
             }
             
     except SQLAlchemyError:
         return {
-            "index": index_name,
-            "sentimentScore": None,
-            "sentimentDirection": "neutral",
-            "calculatedAt": None,
-            "expiry": expiry,
-            "volumeRatio": None,
-            "priceAction": None
+            "data": [],
+            "name": f"{index_name} Sentiment Analysis",
+            "timestamp": datetime.now().isoformat()
         }
 
 
@@ -167,15 +199,91 @@ def get_pcr_calculations(index_name: str, expiry: Optional[str] = None) -> Dict:
     engine = get_engine()
     if not engine:
         return {
-            "index": index_name,
-            "pcrRatio": None,
-            "pcrChange": None,
-            "putOI": None,
-            "callOI": None,
-            "putVolume": None,
-            "callVolume": None,
-            "expiry": expiry,
-            "calculatedAt": None
+            "data": [],
+            "name": f"{index_name} PCR Analysis",
+            "timestamp": datetime.now().isoformat()
+        }
+    
+    try:
+        with engine.connect() as conn:
+            # Get current PCR data
+            current_pcr = conn.execute(
+                text(
+                    """
+                    SELECT pcr, option_chain, ce_contracts, pe_contracts
+                    FROM index_analysis
+                    WHERE index_name = :index
+                    AND (:expiry IS NULL OR expiry_date = :expiry)
+                    ORDER BY updated_at DESC
+                    LIMIT 1
+                    """
+                ),
+                {"index": index_name, "expiry": expiry},
+            ).mappings().first()
+            
+            # Get previous PCR for change calculation
+            previous_pcr = conn.execute(
+                text(
+                    """
+                    SELECT pcr
+                    FROM index_analysis
+                    WHERE index_name = :index
+                    AND (:expiry IS NULL OR expiry_date = :expiry)
+                    ORDER BY updated_at DESC
+                    LIMIT 1 OFFSET 1
+                    """
+                ),
+                {"index": index_name, "expiry": expiry},
+            ).mappings().first()
+            
+            if not current_pcr:
+                raw_data = [{
+                    "Symbol": index_name,
+                    "pcr_ratio": 1.0,
+                    "pcr_change": 0.0,
+                    "put_oi": 0,
+                    "call_oi": 0,
+                    "put_volume": 0,
+                    "call_volume": 0,
+                    "timestamp": datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                }]
+            else:
+                # Calculate detailed PCR metrics
+                pcr_ratio = float(current_pcr["pcr"]) if current_pcr["pcr"] else 1.0
+                pcr_change = 0.0
+                
+                if previous_pcr and previous_pcr["pcr"] and pcr_ratio:
+                    prev_pcr_val = float(previous_pcr["pcr"])
+                    pcr_change = ((pcr_ratio - prev_pcr_val) / prev_pcr_val) * 100
+                
+                # Extract detailed volume and OI data
+                put_oi, call_oi, put_volume, call_volume = _extract_pcr_details(current_pcr["option_chain"])
+                
+                raw_data = [{
+                    "Symbol": index_name,
+                    "pcr_ratio": round(pcr_ratio, 4),
+                    "pcr_change": round(pcr_change, 2),
+                    "put_oi": put_oi,
+                    "call_oi": call_oi,
+                    "put_volume": put_volume,
+                    "call_volume": call_volume,
+                    "timestamp": datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                }]
+            
+            # Normalize using money_flux module mapping
+            normalized_data = ParamNormalizer.normalize(raw_data, module_name="money_flux")
+            
+            return {
+                "data": normalized_data if isinstance(normalized_data, list) else [normalized_data],
+                "name": f"{index_name} PCR Analysis",
+                "timestamp": datetime.now().isoformat()
+            }
+            
+    except SQLAlchemyError:
+        return {
+            "data": [],
+            "name": f"{index_name} PCR Analysis",
+            "timestamp": datetime.now().isoformat()
         }
     
     try:
@@ -281,7 +389,166 @@ def _extract_pcr_details(option_chain: Dict) -> tuple:
     except (TypeError, KeyError):
         pass
     
-    return put_oi, call_oi, put_volume, call_volume
+@cache.cached(ttl_seconds=30)
+def get_ohlc_chart_data(index_name: str, timeframe: str = "3m") -> Dict:
+    """Get OHLC chart data with professional timestamp alignment"""
+    engine = get_engine()
+    if not engine:
+        return {
+            "data": [],
+            "name": f"{index_name} OHLC Chart ({timeframe})",
+            "timestamp": datetime.now().isoformat()
+        }
+    
+    try:
+        with engine.connect() as conn:
+            # Get OHLC data based on timeframe
+            ohlc_data = conn.execute(
+                text(
+                    """
+                    SELECT timestamp, open_price, high_price, low_price, close_price, volume
+                    FROM ohlc_data
+                    WHERE index_name = :index
+                    AND timeframe = :timeframe
+                    ORDER BY timestamp DESC
+                    LIMIT 100
+                    """
+                ),
+                {"index": index_name, "timeframe": timeframe},
+            ).mappings().all()
+            
+            if not ohlc_data:
+                # Generate mock OHLC data
+                raw_data = []
+                base_price = 19500.0
+                for i in range(20):
+                    timestamp = datetime.now() - timedelta(minutes=i * 3)
+                    open_price = base_price + (i * 10)
+                    high_price = open_price + 50
+                    low_price = open_price - 30
+                    close_price = open_price + (i % 2 * 20 - 10)
+                    
+                    raw_data.append({
+                        "Symbol": f"{index_name}_{timestamp.strftime('%H:%M')}",
+                        "price": close_price,
+                        "heatmap": (close_price - open_price) / open_price * 100,  # % change for coloring
+                        "volume": 100000 + (i * 1000),
+                        "volatility": abs(high_price - low_price) / open_price * 100,
+                        "timestamp": timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+                        "ohlc": [open_price, high_price, low_price, close_price]
+                    })
+            else:
+                # Convert real OHLC data to parameter format
+                raw_data = []
+                for row in ohlc_data:
+                    timestamp = row["timestamp"]
+                    open_price = float(row["open_price"])
+                    close_price = float(row["close_price"])
+                    
+                    raw_data.append({
+                        "Symbol": f"{index_name}_{timestamp.strftime('%H:%M')}",
+                        "price": close_price,
+                        "heatmap": (close_price - open_price) / open_price * 100,
+                        "volume": int(row["volume"]),
+                        "volatility": abs(float(row["high_price"]) - float(row["low_price"])) / open_price * 100,
+                        "timestamp": timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+                        "ohlc": [open_price, float(row["high_price"]), float(row["low_price"]), close_price]
+                    })
+            
+            # Normalize using money_flux module mapping
+            normalized_data = ParamNormalizer.normalize(raw_data, module_name="money_flux")
+            
+            return {
+                "data": normalized_data if isinstance(normalized_data, list) else [normalized_data],
+                "name": f"{index_name} OHLC Chart ({timeframe})",
+                "timestamp": datetime.now().isoformat()
+            }
+            
+    except SQLAlchemyError:
+        return {
+            "data": [],
+            "name": f"{index_name} OHLC Chart ({timeframe})",
+            "timestamp": datetime.now().isoformat()
+        }
+
+
+@cache.cached(ttl_seconds=300)  # Cache for 5 minutes
+def get_expiry_data(index_name: str) -> Dict:
+    """Get multi-expiry data for dropdown switching"""
+    engine = get_engine()
+    if not engine:
+        return {
+            "data": [],
+            "name": f"{index_name} Expiry Data",
+            "timestamp": datetime.now().isoformat()
+        }
+    
+    try:
+        with engine.connect() as conn:
+            expiry_data = conn.execute(
+                text(
+                    """
+                    SELECT DISTINCT expiry_date, COUNT(*) as contracts_count
+                    FROM index_analysis
+                    WHERE index_name = :index
+                    AND expiry_date >= CURRENT_DATE
+                    GROUP BY expiry_date
+                    ORDER BY expiry_date ASC
+                    LIMIT 10
+                    """
+                ),
+                {"index": index_name},
+            ).mappings().all()
+            
+            if not expiry_data:
+                # Generate mock expiry data
+                raw_data = []
+                base_date = datetime.now().date()
+                for i in range(4):  # 4 expiry dates
+                    expiry_date = base_date + timedelta(days=(i+1)*7)  # Weekly expiries
+                    contracts_count = 100 - (i * 10)
+                    
+                    raw_data.append({
+                        "Symbol": expiry_date.strftime('%d-%b-%Y'),
+                        "heatmap": float(contracts_count),  # Use contracts count as heatmap value
+                        "volume": contracts_count * 1000,
+                        "price": 0.0,  # Not applicable for expiry data
+                        "timestamp": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                        "expiry_date": expiry_date.strftime('%Y-%m-%d'),
+                        "contracts_count": contracts_count
+                    })
+            else:
+                # Convert real expiry data to parameter format
+                raw_data = []
+                for row in expiry_data:
+                    expiry_date = row["expiry_date"]
+                    contracts_count = int(row["contracts_count"])
+                    
+                    raw_data.append({
+                        "Symbol": expiry_date.strftime('%d-%b-%Y'),
+                        "heatmap": float(contracts_count),
+                        "volume": contracts_count * 1000,
+                        "price": 0.0,
+                        "timestamp": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                        "expiry_date": expiry_date.strftime('%Y-%m-%d'),
+                        "contracts_count": contracts_count
+                    })
+            
+            # Normalize using money_flux module mapping
+            normalized_data = ParamNormalizer.normalize(raw_data, module_name="money_flux")
+            
+            return {
+                "data": normalized_data if isinstance(normalized_data, list) else [normalized_data],
+                "name": f"{index_name} Expiry Data",
+                "timestamp": datetime.now().isoformat()
+            }
+            
+    except SQLAlchemyError:
+        return {
+            "data": [],
+            "name": f"{index_name} Expiry Data",
+            "timestamp": datetime.now().isoformat()
+        }
     
 
 @cache.cached(ttl_seconds=60)
@@ -290,12 +557,9 @@ def get_volume_histogram(index_name: str, expiry: Optional[str] = None) -> Dict:
     engine = get_engine()
     if not engine:
         return {
-            "index": index_name,
-            "expiry": expiry,
-            "volumeBars": [],
-            "totalVolume": None,
-            "maxVolume": None,
-            "calculatedAt": None
+            "data": [],
+            "name": f"{index_name} Volume Histogram",
+            "timestamp": datetime.now().isoformat()
         }
     
     try:
@@ -315,37 +579,44 @@ def get_volume_histogram(index_name: str, expiry: Optional[str] = None) -> Dict:
             ).mappings().first()
             
             if not option_data or not option_data["option_chain"]:
-                return {
-                    "index": index_name,
-                    "expiry": expiry,
-                    "volumeBars": [],
-                    "totalVolume": 0,
-                    "maxVolume": 0,
-                    "calculatedAt": datetime.now().isoformat()
-                }
+                raw_data = [{
+                    "Symbol": index_name,
+                    "volume": 0,
+                    "price": 0.0,
+                    "volatility": 0.0,
+                    "timestamp": datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                }]
+            else:
+                # Process volume histogram similar to MoneyFlux
+                volume_bars = _process_volume_histogram(option_data["option_chain"])
+                total_volume = sum(bar.get("volume", 0) for bar in volume_bars)
+                max_volume = max((bar.get("volume", 0) for bar in volume_bars), default=0)
+                
+                # Convert volume bars to parameter format
+                raw_data = []
+                for bar in volume_bars[:10]:  # Limit to top 10 for visualization
+                    raw_data.append({
+                        "Symbol": f"{index_name}_{bar.get('strikePrice', 0)}",
+                        "volume": int(bar.get("volume", 0)),
+                        "price": float(bar.get("strikePrice", 0)),
+                        "volatility": 0.0,  # Will be calculated if available
+                        "timestamp": datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                    })
             
-            # Process volume histogram similar to MoneyFlux
-            volume_bars = _process_volume_histogram(option_data["option_chain"])
-            total_volume = sum(bar["volume"] for bar in volume_bars if bar["volume"])
-            max_volume = max((bar["volume"] for bar in volume_bars if bar["volume"]), default=0)
+            # Normalize using money_flux module mapping
+            normalized_data = ParamNormalizer.normalize(raw_data, module_name="money_flux")
             
             return {
-                "index": index_name,
-                "expiry": expiry,
-                "volumeBars": volume_bars,
-                "totalVolume": total_volume,
-                "maxVolume": max_volume,
-                "calculatedAt": datetime.now().isoformat()
+                "data": normalized_data if isinstance(normalized_data, list) else [normalized_data],
+                "name": f"{index_name} Volume Histogram",
+                "timestamp": datetime.now().isoformat()
             }
             
     except SQLAlchemyError:
         return {
-            "index": index_name,
-            "expiry": expiry,
-            "volumeBars": [],
-            "totalVolume": None,
-            "maxVolume": None,
-            "calculatedAt": None
+            "data": [],
+            "name": f"{index_name} Volume Histogram",
+            "timestamp": datetime.now().isoformat()
         }
 
 

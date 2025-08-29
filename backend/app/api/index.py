@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Query
 from app.services import index_service
+from app.services.comprehensive_option_analysis_service import get_comprehensive_option_chain_analysis
 from app.api.schemas import (
     IndexExpiry,
     IndexOI,
@@ -82,3 +83,10 @@ def get_supported_indices():
             {"name": "SENSEX", "display_name": "BSE SENSEX", "description": "BSE SENSEX Index"}
         ]
     }
+
+
+# Enhanced option chain analysis
+@router.get("/{name}/comprehensive-option-analysis")
+def get_comprehensive_option_analysis(name: str, expiry: str = Query(default=None)):
+    """Get comprehensive option chain analysis including PCR, Max Pain, Greeks, and more"""
+    return get_comprehensive_option_chain_analysis(name, expiry)

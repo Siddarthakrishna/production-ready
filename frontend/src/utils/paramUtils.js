@@ -1,190 +1,316 @@
 /**
- * Parameter Utilities
+ * Parameter System Utilities for Frontend
  * 
- * Helper functions for working with the global parameter system
+ * This utility file provides functions to work with the global parameter system
+ * implementing the unified param format as described in SwingCentre documentation.
+ * 
+ * All backend APIs now return data in this format:
+ * {
+ *   "data": [
+ *     {
+ *       "Symbol": "XYZ",
+ *       "param_0": <primary metric>,
+ *       "param_1": <secondary metric>,
+ *       "param_2": <supporting value>,
+ *       "param_3": <supporting value>,
+ *       "param_4": <date or extra field>
+ *     }
+ *   ],
+ *   "name": "<study or endpoint name>",
+ *   "timestamp": "<ISO timestamp>"
+ * }
  */
-
-// Default heatmap color scheme
-const DEFAULT_HEATMAP_COLORS = {
-  negative: '#ff4444',  // Red for negative values
-  neutral: '#f8f9fa',   // Light gray for neutral/zero
-  positive: '#00c851'   // Green for positive values
-};
 
 /**
- * Get a parameter value from the normalized params object
- * @param {Object} params - The params object from the API response
- * @param {string} paramName - The parameter name (e.g., 'param_0')
- * @returns {*} The parameter value, or undefined if not found
+ * Parameter type definitions for different contexts
  */
-export const getParam = (params, paramName) => {
-  if (!params || !params[paramName]) return undefined;
-  return params[paramName].value;
-};
-
-/**
- * Get a parameter's metadata (label, type, etc.)
- * @param {Object} params - The params object from the API response
- * @param {string} paramName - The parameter name (e.g., 'param_0')
- * @returns {Object} The parameter metadata, or undefined if not found
- */
-export const getParamMeta = (params, paramName) => {
-  if (!params || !params[paramName]) return undefined;
-  const { value, ...meta } = params[paramName];
-  return meta;
-};
-
-/**
- * Convert legacy data format to the new parameter format
- * This is a migration helper and should be removed once all APIs are updated
- * @param {Object} legacyData - The legacy data object
- * @param {Object} paramMap - Mapping of legacy fields to param names
- * @returns {Object} The normalized data structure
- */
-export const normalizeLegacyData = (legacyData, paramMap) => {
-  if (!legacyData) return null;
+export const PARAM_CONTEXTS = {
+  // Advance/Decline (NIFTY/FO)
+  ADVANCE_DECLINE: {
+    param_0: 'Advance % growth',
+    param_1: 'Decline % growth',
+    param_2: 'Net difference',
+    param_3: 'Net advancing count',
+    param_4: 'Timestamp'
+  },
   
-  // If already in the new format, return as-is
-  if (legacyData.params) return legacyData;
+  // Weekly Performance (Bar Chart)
+  WEEKLY_PERFORMANCE: {
+    param_0: 'Weekly % change',
+    param_1: 'Current Price',
+    param_2: 'Previous Close',
+    param_3: 'R-Factor',
+    param_4: 'Timestamp'
+  },
   
-  const result = {
-    ...legacyData,
-    params: {}
-  };
+  // 10-Day/50-Day Breakouts (UP/DOWN)
+  BREAKOUT: {
+    param_0: 'LTP (Last Traded Price)',
+    param_1: 'Previous Close',
+    param_2: '% Change',
+    param_3: 'Sector',
+    param_4: 'Date (YYYY-MM-DD)'
+  },
   
-  // Map legacy fields to the new param structure
-  Object.entries(paramMap).forEach(([legacyField, paramName]) => {
-    if (legacyField in legacyData) {
-      result.params[paramName] = {
-        value: legacyData[legacyField],
-        label: legacyField,
-        type: typeof legacyData[legacyField]
-      };
-      
-      // Remove the legacy field
-      delete result[legacyField];
-    }
-  });
+  // Swing Service Custom
+  SWING_SERVICE: {
+    param_0: 'Price / EMA / Indicator value',
+    param_1: 'Fib level / EMA summary',
+    param_2: 'Institutional Flow',
+    param_3: 'Volume',
+    param_4: 'Accumulation / Date etc.'
+  },
   
-  return result;
-};
-
-/**
- * Get a human-readable label for a parameter
- * @param {Object} params - The params object
- * @param {string} paramName - The parameter name
- * @returns {string} The parameter label or the parameter name if not found
- */
-export const getParamLabel = (params, paramName) => {
-  const meta = getParamMeta(params, paramName);
-  return meta?.label || paramName;
-};
-
-/**
- * Format a parameter value with its appropriate units
- * @param {Object} params - The params object
- * @param {string} paramName - The parameter name
- * @returns {string} The formatted value with units
- */
-export const formatParamValue = (params, paramName) => {
-  const value = getParam(params, paramName);
-  if (value === undefined || value === null) return 'N/A';
+  // Market Depth
+  MARKET_DEPTH: {
+    param_0: 'Price',
+    param_1: 'Previous Close',
+    param_2: '% Change',
+    param_3: 'Volume',
+    param_4: 'Timestamp'
+  },
   
-  const meta = getParamMeta(params, paramName);
+  // Money Flux
+  MONEY_FLUX: {
+    param_0: 'Heat Value',
+    param_1: 'Sentiment Score',
+    param_2: 'PCR Ratio',
+    param_3: 'Volatility',
+    param_4: 'Timestamp'
+  },
   
-  // Handle different parameter types
-  switch (meta?.type) {
-    case 'percent':
-    case 'percent_change':
-      return `${value.toFixed(2)}%`;
-    case 'price':
-      return `₹${value.toLocaleString('en-IN')}`;
-    case 'volume':
-      // Format large numbers with K, M, B suffixes
-      if (value >= 1e9) return `${(value / 1e9).toFixed(1)}B`;
-      if (value >= 1e6) return `${(value / 1e6).toFixed(1)}M`;
-      if (value >= 1e3) return `${(value / 1e3).toFixed(1)}K`;
-      return value.toString();
-    case 'timestamp':
-      return new Date(value).toLocaleString();
-    default:
-      return value.toString();
+  // Pro Setup
+  PRO_SETUP: {
+    param_0: 'Price',
+    param_1: '% Change',
+    param_2: '5-Min Spike',
+    param_3: 'Volume',
+    param_4: 'Timestamp'
   }
 };
 
 /**
- * Get heatmap color for a value
- * @param {number} value - The value to get color for
- * @param {Object} options - Configuration options
- * @param {number} [options.maxValue=1] - Maximum absolute value for scaling
- * @param {Object} [options.colors] - Custom color scheme
+ * Extract parameter value from standardized data structure
+ * @param {Object} dataItem - Single data item from API response
+ * @param {string} paramKey - Parameter key (e.g., 'param_0')
+ * @returns {any} Parameter value
+ */
+export function getParamValue(dataItem, paramKey) {
+  if (!dataItem || !paramKey) return null;
+  
+  // Handle both old format (direct param_X) and new format (params.param_X.value)
+  if (dataItem.params && dataItem.params[paramKey]) {
+    return dataItem.params[paramKey].value;
+  }
+  
+  // Fallback to direct access for backward compatibility
+  return dataItem[paramKey] || null;
+}
+
+/**
+ * Extract parameter label from standardized data structure
+ * @param {Object} dataItem - Single data item from API response
+ * @param {string} paramKey - Parameter key (e.g., 'param_0')
+ * @returns {string} Parameter label
+ */
+export function getParamLabel(dataItem, paramKey) {
+  if (!dataItem || !paramKey) return paramKey;
+  
+  if (dataItem.params && dataItem.params[paramKey]) {
+    return dataItem.params[paramKey].label || paramKey;
+  }
+  
+  return paramKey;
+}
+
+/**
+ * Format data for charts using parameter system
+ * @param {Array} data - Array of data items
+ * @param {string} xParam - Parameter for X-axis (default: Symbol)
+ * @param {string} yParam - Parameter for Y-axis (default: param_0)
+ * @returns {Array} Formatted chart data
+ */
+export function formatChartData(data, xParam = 'Symbol', yParam = 'param_0') {
+  if (!Array.isArray(data)) return [];
+  
+  return data.map(item => {
+    const xValue = xParam === 'Symbol' ? item.Symbol : getParamValue(item, xParam);
+    const yValue = getParamValue(item, yParam);
+    
+    return {
+      x: xValue,
+      y: yValue,
+      label: getParamLabel(item, yParam),
+      original: item
+    };
+  });
+}
+
+/**
+ * Format data for tables using parameter system
+ * @param {Array} data - Array of data items
+ * @param {Array} columns - Column configuration
+ * @returns {Array} Formatted table data
+ */
+export function formatTableData(data, columns) {
+  if (!Array.isArray(data)) return [];
+  
+  return data.map(item => {
+    const formattedItem = { Symbol: item.Symbol };
+    
+    columns.forEach(col => {
+      if (col.param) {
+        formattedItem[col.key] = getParamValue(item, col.param);
+        formattedItem[`${col.key}_label`] = getParamLabel(item, col.param);
+      }
+    });
+    
+    return formattedItem;
+  });
+}
+
+/**
+ * Get heatmap color based on parameter value
+ * @param {number} value - Parameter value
+ * @param {number} intensity - Intensity multiplier (default: 1.0)
  * @returns {string} CSS color string
  */
-export const getHeatmapColor = (value, { 
-  maxValue = 1, 
-  colors = DEFAULT_HEATMAP_COLORS 
-} = {}) => {
-  if (value === null || value === undefined) return colors.neutral;
+export function getHeatmapColor(value, intensity = 1.0) {
+  if (typeof value !== 'number') return 'rgba(128, 128, 128, 0.3)';
   
-  const absValue = Math.min(Math.abs(value), maxValue);
-  const ratio = absValue / maxValue;
+  const absValue = Math.abs(value);
+  const alpha = Math.min(absValue * intensity * 0.1, 0.8);
   
-  if (value > 0) {
-    const opacity = Math.min(0.2 + ratio * 0.8, 1); // 20-100% opacity
-    return `${colors.positive}${Math.round(opacity * 255).toString(16).padStart(2, '0')}`;
-  } else if (value < 0) {
-    const opacity = Math.min(0.2 + ratio * 0.8, 1); // 20-100% opacity
-    return `${colors.negative}${Math.round(opacity * 255).toString(16).padStart(2, '0')}`;
+  if (value >= 0) {
+    return `rgba(0, 200, 0, ${alpha})`; // Green for positive
+  } else {
+    return `rgba(200, 0, 0, ${alpha})`; // Red for negative
   }
-  
-  return colors.neutral;
-};
+}
 
 /**
- * Get heatmap cell style for a value
- * @param {Object} params - The params object
- * @param {string} valueParam - Parameter name for the value
- * @param {string} [intensityParam] - Optional parameter for intensity
- * @param {Object} [options] - Additional options
- * @returns {Object} React/CSS style object
+ * Format percentage values
+ * @param {number} value - Numeric value
+ * @param {number} decimals - Number of decimal places (default: 2)
+ * @returns {string} Formatted percentage string
  */
-export const getHeatmapCellStyle = (params, valueParam, intensityParam, options = {}) => {
-  const value = getParam(params, valueParam);
-  const intensity = intensityParam ? getParam(params, intensityParam) : 1;
-  
-  return {
-    backgroundColor: getHeatmapColor(value, options),
-    opacity: Math.min(0.3 + (intensity || 0) * 0.7, 1), // 30-100% opacity based on intensity
-    transition: 'background-color 0.3s ease, opacity 0.3s ease',
-    textAlign: 'center',
-    ...options.additionalStyles
-  };
-};
+export function formatPercentage(value, decimals = 2) {
+  if (typeof value !== 'number') return 'N/A';
+  return `${value.toFixed(decimals)}%`;
+}
 
 /**
- * Format a heatmap value for display
- * @param {Object} params - The params object
- * @param {string} paramName - The parameter name
- * @param {Object} [options] - Formatting options
- * @returns {string} Formatted value
+ * Format currency values
+ * @param {number} value - Numeric value
+ * @param {string} currency - Currency symbol (default: '₹')
+ * @returns {string} Formatted currency string
  */
-export const formatHeatmapValue = (params, paramName, options = {}) => {
-  const value = getParam(params, paramName);
-  if (value === null || value === undefined) return '—';
+export function formatCurrency(value, currency = '₹') {
+  if (typeof value !== 'number') return 'N/A';
   
-  const {
-    decimals = 2,
-    withSign = true,
-    withSymbol = false,
-    symbol = '%'
-  } = options;
-  
-  const formatted = value.toFixed(decimals);
-  const prefix = withSign && value > 0 ? '+' : '';
-  const suffix = withSymbol ? symbol : '';
-  
-  return `${prefix}${formatted}${suffix}`;
-};
+  if (value >= 10000000) { // 1 crore
+    return `${currency}${(value / 10000000).toFixed(2)}Cr`;
+  } else if (value >= 100000) { // 1 lakh
+    return `${currency}${(value / 100000).toFixed(2)}L`;
+  } else if (value >= 1000) { // 1 thousand
+    return `${currency}${(value / 1000).toFixed(2)}K`;
+  } else {
+    return `${currency}${value.toFixed(2)}`;
+  }
+}
 
-// Export the default color scheme for external use
-export { DEFAULT_HEATMAP_COLORS };
+/**
+ * Format volume values
+ * @param {number} value - Volume value
+ * @returns {string} Formatted volume string
+ */
+export function formatVolume(value) {
+  if (typeof value !== 'number') return 'N/A';
+  
+  if (value >= 10000000) {
+    return `${(value / 10000000).toFixed(2)}Cr`;
+  } else if (value >= 100000) {
+    return `${(value / 100000).toFixed(2)}L`;
+  } else if (value >= 1000) {
+    return `${(value / 1000).toFixed(2)}K`;
+  } else {
+    return value.toString();
+  }
+}
+
+/**
+ * Validate API response structure
+ * @param {Object} response - API response
+ * @returns {boolean} True if valid structure
+ */
+export function validateApiResponse(response) {
+  if (!response || typeof response !== 'object') return false;
+  
+  // Check required fields
+  if (!response.data || !Array.isArray(response.data)) return false;
+  if (!response.name || typeof response.name !== 'string') return false;
+  if (!response.timestamp || typeof response.timestamp !== 'string') return false;
+  
+  // Check data items structure
+  return response.data.every(item => 
+    item && 
+    typeof item === 'object' && 
+    typeof item.Symbol === 'string'
+  );
+}
+
+/**
+ * Helper to get context-specific parameter labels
+ * @param {string} context - Context name from PARAM_CONTEXTS
+ * @param {string} paramKey - Parameter key
+ * @returns {string} Context-specific label
+ */
+export function getContextLabel(context, paramKey) {
+  const contextDef = PARAM_CONTEXTS[context];
+  if (contextDef && contextDef[paramKey]) {
+    return contextDef[paramKey];
+  }
+  return paramKey;
+}
+
+/**
+ * Create table columns for a specific context
+ * @param {string} context - Context name from PARAM_CONTEXTS
+ * @param {Array} visibleParams - Array of param keys to show (default: all)
+ * @returns {Array} Column configuration
+ */
+export function createContextColumns(context, visibleParams = null) {
+  const contextDef = PARAM_CONTEXTS[context];
+  if (!contextDef) return [];
+  
+  const params = visibleParams || Object.keys(contextDef);
+  
+  const columns = [
+    { key: 'symbol', title: 'Symbol', param: null }
+  ];
+  
+  params.forEach(param => {
+    columns.push({
+      key: param.replace('param_', 'value_'),
+      title: contextDef[param],
+      param: param
+    });
+  });
+  
+  return columns;
+}
+
+export default {
+  PARAM_CONTEXTS,
+  getParamValue,
+  getParamLabel,
+  formatChartData,
+  formatTableData,
+  getHeatmapColor,
+  formatPercentage,
+  formatCurrency,
+  formatVolume,
+  validateApiResponse,
+  getContextLabel,
+  createContextColumns
+};

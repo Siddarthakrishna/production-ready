@@ -9,6 +9,7 @@ from fastapi import APIRouter, Query, HTTPException
 from typing import Optional, Dict, List
 from app.services.services.study_service import StudyService
 from app.services.fii_dii_service import get_fii_dii_data_unified
+from app.services import scanner_service
 
 router = APIRouter(prefix="/unified", tags=["unified-study"])
 
@@ -102,9 +103,7 @@ async def fetch_hd_data_fno() -> List[Dict]:
     Fetch high delivery F&O data in unified param format
     """
     try:
-        # Mock data in param format for F&O scanner
-        result = await study_service.get_study_data("NIFTY 50")
-        return result.get("data", [])
+        return await scanner_service.get_hd_data_fno()
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -115,8 +114,7 @@ async def fetch_hd_data_n500() -> List[Dict]:
     Fetch high delivery NIFTY 500 data in unified param format
     """
     try:
-        result = await study_service.get_study_data("NIFTY 500")
-        return result.get("data", [])
+        return await scanner_service.get_hd_data_n500()
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -127,8 +125,7 @@ async def fetch_dsp_data_fno() -> List[Dict]:
     Fetch delivery spike F&O data in unified param format
     """
     try:
-        result = await study_service.get_study_data("GAINER")
-        return result.get("data", [])
+        return await scanner_service.get_dsp_data_fno()
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -139,8 +136,18 @@ async def fetch_dsp_data_n500() -> List[Dict]:
     Fetch delivery spike NIFTY 500 data in unified param format
     """
     try:
-        result = await study_service.get_study_data("LOSSER")
-        return result.get("data", [])
+        return await scanner_service.get_dsp_data_n500()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/hd_hist")
+async def fetch_hd_hist() -> List[Dict]:
+    """
+    Fetch historical high delivery data in unified param format
+    """
+    try:
+        return await scanner_service.get_hd_hist()
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

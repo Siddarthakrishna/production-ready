@@ -16,6 +16,9 @@
 route = "http://localhost:8000/api/money_flux";
 legacy_route = "http://localhost:8000/api/moneyflux";
 
+// Import parameter utilities
+const { getParamValue, getParamLabel, formatChartData, getHeatmapColor, validateApiResponse } = window.paramUtils || {};
+
 // Enhanced global variables for professional trading
 let sentimentData = {};
 let pcrData = {};
@@ -23,6 +26,60 @@ let volumeHistogramData = {};
 let currentSentimentInterval = null;
 let currentPcrInterval = null;
 let currentVolumeInterval = null;
+
+// Enhanced parameter-based data processing functions
+const processHeatmapData = (apiResponse) => {
+  if (!validateApiResponse(apiResponse)) {
+    console.warn('Invalid heatmap API response structure');
+    return [];
+  }
+  
+  return apiResponse.data.map(item => {
+    const heatmapValue = getParamValue(item, 'param_0') || getParamValue(item, 'param_2') || 0;
+    const symbol = item.Symbol;
+    
+    return {
+      x: symbol,
+      y: heatmapValue,
+      fillColor: getHeatmapColor(heatmapValue)
+    };
+  });
+};
+
+const processOHLCData = (apiResponse) => {
+  if (!validateApiResponse(apiResponse)) {
+    console.warn('Invalid OHLC API response structure');
+    return { ohlc: [], volume: [] };
+  }
+  
+  const ohlc = [];
+  const volume = [];
+  
+  apiResponse.data.forEach(item => {
+    const timestamp = new Date(getParamValue(item, 'param_4')).getTime();
+    const price = getParamValue(item, 'param_0') || 0;
+    const volumeValue = getParamValue(item, 'param_3') || 0;
+    
+    // Extract OHLC from item if available
+    if (item.ohlc && Array.isArray(item.ohlc) && item.ohlc.length === 4) {
+      ohlc.push([timestamp, ...item.ohlc]);
+    } else {
+      // Generate mock OHLC from price
+      const open = price;
+      const high = price * 1.01;
+      const low = price * 0.99;
+      const close = price;
+      ohlc.push([timestamp, open, high, low, close]);
+    }
+    
+    volume.push({
+      x: timestamp,
+      y: volumeValue
+    });
+  });
+  
+  return { ohlc, volume };
+};
 
 // Enhanced API functions for professional trading features
 const call_Enhanced_Sentiment_API = async (script, expiry = null) => {
@@ -772,34 +829,49 @@ const call_Volume_API = (script, exp_date) => {
 };
 
 // Heat Map API
+// Enhanced Heat Map API with parameter system support
 const call_Heat_Map_API = (script) => {
   try {
-    // For Midcap = root_1 + `/study-data/Midcap%2050`
-    // For Sensex = root_1 + `/study-data/Sensex`
+    // Use the new unified endpoint
+    const url = `${legacy_route}/heatmap?index=${script}`;
+    
     $.ajax({
-      url: root_1 + `/study-data/Heat%20Map%20${script}`,
+      url: url,
       method: "GET",
       success: function (data, status) {
-        // Heat_Map = JSON.parse(data)["data"];   // For hs
-        Heat_Map = data.data;                     // For ebs
+        // Validate API response structure
+        if (validateApiResponse && validateApiResponse(data)) {
+          // Process data using parameter system
+          HeatMap = processHeatmapData(data);
+          console.log(`Heat map data processed for ${script}:`, HeatMap.length, 'items');
+        } else {
+          // Fallback to old format if available
+          if (data.data && Array.isArray(data.data)) {
+            Heat_Map = data.data;
+            HeatMap = [];
+            for (var i = 0; i < Heat_Map.length; i++) {
+              const heatValue = getParamValue ? getParamValue(Heat_Map[i], 'param_0') : Heat_Map[i].param_0;
+              if (heatValue != -0 && heatValue != 0) {
+                HeatMap.push({
+                  x: Heat_Map[i].Symbol,
+                  y: heatValue,
+                  fillColor: getHeatmapColor ? getHeatmapColor(heatValue) : (heatValue >= 0 ? '#42b142' : '#ff6c6c')
+                });
+              }
+            }
+          } else {
+            console.warn('Invalid heat map API response structure');
+            HeatMap = [];
+          }
+        }
       },
       error: function (response) {
-        logger.error("Error: " + response);
-        Heat_Map = [];
+        console.error("Heat Map API Error: " + response.statusText);
+        HeatMap = [];
       },
     });
-
-    HeatMap = [];
-    for (var i = 0; i < Heat_Map.length; i++) {
-      if (Heat_Map[i].param_0 != -0 || Heat_Map[i].param_0 != 0) {
-        HeatMap.push({
-          x: Heat_Map[i].Symbol, // the date
-          y: Heat_Map[i].param_0, // the Volume
-        });
-      }
-    }
   } catch (error) {
-    logger.error(error);
+    console.error('Heat Map API Error:', error);
     HeatMap = [];
   }
   return HeatMap;

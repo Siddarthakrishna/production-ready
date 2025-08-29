@@ -7,6 +7,10 @@ from app.services.money_flux_service import (
     get_ohlc_chart_data,
     get_expiry_data
 )
+from app.services.enhanced_index_heatmap_service import (
+    get_enhanced_index_heatmap,
+    get_index_chart_patterns
+)
 from app.api.schemas import (
     MoneyfluxHeatmap,
     MoneyfluxSentiment,
@@ -52,3 +56,16 @@ async def chart_data(index: str = Query(default="NIFTY50"), timeframe: str = Que
 async def expiry_data(index: str = Query(default="NIFTY50")):
     """Get multi-expiry data for dropdown switching"""
     return get_expiry_data(index)
+
+
+# Enhanced endpoints for constituent analysis
+@router.get("/enhanced-heatmap")
+async def enhanced_heatmap(index: str = Query(default="NIFTY50")):
+    """Get enhanced heatmap with constituent stocks for comprehensive analysis"""
+    return get_enhanced_index_heatmap(index)
+
+
+@router.get("/chart-patterns")
+async def chart_patterns(index: str = Query(default="NIFTY50")):
+    """Get chart pattern analysis for the specified index"""
+    return get_index_chart_patterns(index)

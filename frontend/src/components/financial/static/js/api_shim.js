@@ -45,12 +45,12 @@ window.route_fno_live_oi = '/fno/live_oi';
 window.route_fno_analysis = '/fno/index_analysis';
 window.route_fno_heatmap = '/fno/heatmap';
 
-// Scanner specific routes
-window.route_hd_data_fno = '/fetch_hd_data_fno';
-window.route_hd_data_n500 = '/fetch_hd_data_n500';
-window.route_dsp_data_fno = '/fetch_dsp_data_fno';
-window.route_dsp_data_n500 = '/fetch_dsp_data_n500';
-window.route_hd_hist = '/hd_hist';
+// Scanner specific routes - point to unified endpoints
+window.route_hd_data_fno = '/unified/fetch_hd_data_fno';
+window.route_hd_data_n500 = '/unified/fetch_hd_data_n500';
+window.route_dsp_data_fno = '/unified/fetch_dsp_data_fno';
+window.route_dsp_data_n500 = '/unified/fetch_dsp_data_n500';
+window.route_hd_hist = '/unified/hd_hist';
 
 // Money flux specific routes
 window.route_money_flux_expiry = '/money_flux/get_running_expiry';

@@ -1,0 +1,741 @@
+{
+  "api_documentation": {
+    "version": "2.0",
+    "last_updated": "2025-08-29",
+    "description": "Comprehensive API endpoints documentation with global parameter system implementation",
+    "base_url": "https://api.sharadaresearch.in",
+    "parameter_format": {
+      "description": "All endpoints return data in standardized parameter format",
+      "structure": {
+        "data": "Array of data objects",
+        "name": "Endpoint or study name",
+        "timestamp": "ISO 8601 timestamp"
+      },
+      "data_item_structure": {
+        "Symbol": "Stock/Index identifier",
+        "param_0": "Primary metric (LTP, Price, Heat Value, etc.)",
+        "param_1": "Secondary metric (Previous Close, Sentiment, etc.)",
+        "param_2": "Supporting value (% Change, Volume, PCR, etc.)",
+        "param_3": "Supporting value (Sector, Volatility, etc.)",
+        "param_4": "Date/Timestamp or additional field"
+      }
+    },
+    "modules": {
+      "swing_center": {
+        "base_path": "/swing",
+        "endpoints": {
+          "advance_decline_nifty": {
+            "path": "/adv-dec/NIFTY",
+            "method": "GET",
+            "description": "NIFTY Advance/Decline growth data",
+            "sample_request": {
+              "url": "https://api.sharadaresearch.in/swing/adv-dec/NIFTY",
+              "method": "GET",
+              "headers": {
+                "Content-Type": "application/json"
+              }
+            },
+            "sample_response": {
+              "data": [
+                {
+                  "Symbol": "NIFTY",
+                  "param_0": 2.45,
+                  "param_1": -1.23,
+                  "param_2": 3.68,
+                  "param_3": 25,
+                  "param_4": "2025-08-29T10:30:00Z"
+                }
+              ],
+              "name": "NIFTY A/D Growth",
+              "timestamp": "2025-08-29T10:30:00Z"
+            },
+            "parameter_meanings": {
+              "param_0": "Advance % growth from yesterday close",
+              "param_1": "Decline % growth from yesterday close",
+              "param_2": "Net difference (Advance - Decline)",
+              "param_3": "Net advancing stock count",
+              "param_4": "Data timestamp"
+            }
+          },
+          "advance_decline_fo": {
+            "path": "/adv-dec/FO",
+            "method": "GET",
+            "description": "F&O Advance/Decline growth data",
+            "sample_response": {
+              "data": [
+                {
+                  "Symbol": "FO",
+                  "param_0": 1.89,
+                  "param_1": -2.14,
+                  "param_2": 4.03,
+                  "param_3": 18,
+                  "param_4": "2025-08-29T10:30:00Z"
+                }
+              ],
+              "name": "FO A/D Growth",
+              "timestamp": "2025-08-29T10:30:00Z"
+            }
+          },
+          "weekly_performance": {
+            "path": "/study/data/MAJOR INDEX WEEKLY PERFORMANCE",
+            "method": "GET",
+            "description": "Major indices weekly performance bar chart data",
+            "sample_response": {
+              "data": [
+                {
+                  "Symbol": "NIFTY50",
+                  "param_0": 1.25,
+                  "param_1": 19850.50,
+                  "param_2": 19603.75,
+                  "param_3": 0.85,
+                  "param_4": "2025-08-29"
+                },
+                {
+                  "Symbol": "BANKNIFTY",
+                  "param_0": -0.45,
+                  "param_1": 45200.25,
+                  "param_2": 45404.50,
+                  "param_3": -0.32,
+                  "param_4": "2025-08-29"
+                }
+              ],
+              "name": "MAJOR INDEX WEEKLY PERFORMANCE",
+              "timestamp": "2025-08-29T10:30:00Z"
+            },
+            "parameter_meanings": {
+              "param_0": "Weekly % change",
+              "param_1": "Current Price",
+              "param_2": "Previous Close",
+              "param_3": "R-Factor",
+              "param_4": "Date (YYYY-MM-DD)"
+            }
+          },
+          "short_term_bullish": {
+            "path": "/study/symbol/short-term-bullish",
+            "method": "GET",
+            "description": "Short term swing breakout - UP (10-day high breakout)",
+            "parameters": {
+              "count": "Number of results (default: 20)"
+            },
+            "sample_response": {
+              "data": [
+                {
+                  "Symbol": "RELIANCE",
+                  "param_0": 2450.75,
+                  "param_1": 2398.50,
+                  "param_2": 2.18,
+                  "param_3": "Energy",
+                  "param_4": "2025-08-29"
+                },
+                {
+                  "Symbol": "TCS",
+                  "param_0": 3890.25,
+                  "param_1": 3845.75,
+                  "param_2": 1.16,
+                  "param_3": "IT",
+                  "param_4": "2025-08-29"
+                }
+              ],
+              "name": "SHORT TERM SWING BO - UP",
+              "timestamp": "2025-08-29T10:30:00Z"
+            },
+            "parameter_meanings": {
+              "param_0": "LTP (Last Traded Price)",
+              "param_1": "Previous Close",
+              "param_2": "% Change",
+              "param_3": "Sector",
+              "param_4": "Date (YYYY-MM-DD)"
+            }
+          },
+          "short_term_bearish": {
+            "path": "/study/symbol/short-term-bearish",
+            "method": "GET",
+            "description": "Short term swing breakout - DOWN (10-day low breakout)",
+            "sample_response": {
+              "data": [
+                {
+                  "Symbol": "HDFC",
+                  "param_0": 1590.25,
+                  "param_1": 1612.50,
+                  "param_2": -1.38,
+                  "param_3": "Banking",
+                  "param_4": "2025-08-29"
+                }
+              ],
+              "name": "SHORT TERM SWING BO - DOWN",
+              "timestamp": "2025-08-29T10:30:00Z"
+            }
+          },
+          "long_term_bullish": {
+            "path": "/study/symbol/long-term-bullish",
+            "method": "GET",
+            "description": "Long term swing breakout - UP (50-day high breakout)",
+            "sample_response": {
+              "data": [
+                {
+                  "Symbol": "INFY",
+                  "param_0": 1825.75,
+                  "param_1": 1798.25,
+                  "param_2": 1.53,
+                  "param_3": "IT",
+                  "param_4": "2025-08-29"
+                }
+              ],
+              "name": "LONG TERM SWING BO - UP",
+              "timestamp": "2025-08-29T10:30:00Z"
+            }
+          },
+          "long_term_bearish": {
+            "path": "/study/symbol/long-term-bearish",
+            "method": "GET",
+            "description": "Long term swing breakout - DOWN (50-day low breakout)",
+            "sample_response": {
+              "data": [
+                {
+                  "Symbol": "ICICIBANK",
+                  "param_0": 1198.50,
+                  "param_1": 1225.75,
+                  "param_2": -2.23,
+                  "param_3": "Banking",
+                  "param_4": "2025-08-29"
+                }
+              ],
+              "name": "LONG TERM SWING BO - DOWN",
+              "timestamp": "2025-08-29T10:30:00Z"
+            }
+          }
+        }
+      },
+      "money_flux": {
+        "base_path": "/money_flux",
+        "endpoints": {
+          "heatmap_nifty50": {
+            "path": "/heatmap/NIFTY50",
+            "method": "GET",
+            "description": "NIFTY50 constituent stocks heatmap with chart patterns",
+            "sample_response": {
+              "data": [
+                {
+                  "Symbol": "RELIANCE",
+                  "param_0": 75.5,
+                  "param_1": 0.85,
+                  "param_2": 1.25,
+                  "param_3": 18.7,
+                  "param_4": "2025-08-29T10:30:00Z"
+                },
+                {
+                  "Symbol": "TCS",
+                  "param_0": -42.3,
+                  "param_1": -0.62,
+                  "param_2": 0.89,
+                  "param_3": 22.1,
+                  "param_4": "2025-08-29T10:30:00Z"
+                }
+              ],
+              "name": "NIFTY50 Money Flux Heatmap",
+              "timestamp": "2025-08-29T10:30:00Z"
+            },
+            "parameter_meanings": {
+              "param_0": "Heat Value (money flow intensity)",
+              "param_1": "Sentiment Score (-1 to 1)",
+              "param_2": "PCR Ratio",
+              "param_3": "Volatility %",
+              "param_4": "Data timestamp"
+            },
+            "chart_patterns": [
+              "Ascending Triangle",
+              "Descending Triangle",
+              "Head and Shoulders",
+              "Inverse Head and Shoulders",
+              "Double Top",
+              "Double Bottom",
+              "Cup and Handle",
+              "Bull Flag",
+              "Bear Flag",
+              "Wedge",
+              "Channel",
+              "Support/Resistance"
+            ]
+          },
+          "heatmap_banknifty": {
+            "path": "/heatmap/BANKNIFTY",
+            "method": "GET",
+            "description": "BANKNIFTY constituent stocks heatmap"
+          },
+          "heatmap_finnifty": {
+            "path": "/heatmap/FINNIFTY",
+            "method": "GET",
+            "description": "FINNIFTY constituent stocks heatmap"
+          },
+          "heatmap_midcap": {
+            "path": "/heatmap/MIDCAP",
+            "method": "GET",
+            "description": "MIDCAP constituent stocks heatmap"
+          },
+          "heatmap_sensex": {
+            "path": "/heatmap/SENSEX",
+            "method": "GET",
+            "description": "SENSEX constituent stocks heatmap"
+          },
+          "expiry": {
+            "path": "/get_running_expiry",
+            "method": "GET",
+            "description": "Get current running expiry dates",
+            "sample_response": {
+              "data": [
+                {
+                  "Symbol": "CURRENT",
+                  "param_0": "2025-09-26",
+                  "param_1": "2025-10-31",
+                  "param_2": "2025-11-28",
+                  "param_3": "Monthly",
+                  "param_4": "2025-08-29T10:30:00Z"
+                }
+              ],
+              "name": "Running Expiry Dates",
+              "timestamp": "2025-08-29T10:30:00Z"
+            }
+          }
+        }
+      },
+      "market_depth": {
+        "base_path": "/market-depth",
+        "endpoints": {
+          "highpower": {
+            "path": "/highpower",
+            "method": "GET",
+            "description": "High power stocks with strong momentum",
+            "sample_response": {
+              "data": [
+                {
+                  "Symbol": "ADANIPORTS",
+                  "param_0": 1285.50,
+                  "param_1": 1265.25,
+                  "param_2": 1.60,
+                  "param_3": 2547890,
+                  "param_4": "2025-08-29T10:30:00Z"
+                }
+              ],
+              "name": "High Power Stocks",
+              "timestamp": "2025-08-29T10:30:00Z"
+            },
+            "parameter_meanings": {
+              "param_0": "Current Price",
+              "param_1": "Previous Close",
+              "param_2": "% Change",
+              "param_3": "Volume",
+              "param_4": "Timestamp"
+            }
+          },
+          "intraday_boost": {
+            "path": "/intraday-boost",
+            "method": "GET",
+            "description": "Stocks with intraday boost momentum"
+          },
+          "top_level": {
+            "path": "/top-level",
+            "method": "GET",
+            "description": "Top level market depth analysis"
+          },
+          "low_level": {
+            "path": "/low-level",
+            "method": "GET",
+            "description": "Low level market depth analysis"
+          },
+          "gainers": {
+            "path": "/gainers",
+            "method": "GET",
+            "description": "Top gainers in the market"
+          },
+          "losers": {
+            "path": "/losers",
+            "method": "GET",
+            "description": "Top losers in the market"
+          }
+        }
+      },
+      "pro_setup": {
+        "base_path": "/pro",
+        "endpoints": {
+          "spike_5min": {
+            "path": "/spike/5min",
+            "method": "GET",
+            "description": "5-minute spike analysis",
+            "sample_response": {
+              "data": [
+                {
+                  "Symbol": "WIPRO",
+                  "param_0": 425.75,
+                  "param_1": 3.25,
+                  "param_2": 8.5,
+                  "param_3": 1854720,
+                  "param_4": "2025-08-29T10:30:00Z"
+                }
+              ],
+              "name": "5-Min Spike Analysis",
+              "timestamp": "2025-08-29T10:30:00Z"
+            },
+            "parameter_meanings": {
+              "param_0": "Current Price",
+              "param_1": "% Change",
+              "param_2": "5-Min Spike Intensity",
+              "param_3": "Volume",
+              "param_4": "Timestamp"
+            }
+          },
+          "spike_10min": {
+            "path": "/spike/10min",
+            "method": "GET",
+            "description": "10-minute spike analysis"
+          },
+          "bullish_divergence_15": {
+            "path": "/bullish-divergence/15",
+            "method": "GET",
+            "description": "15-minute bullish divergence patterns"
+          },
+          "bearish_divergence_15": {
+            "path": "/bearish-divergence/15",
+            "method": "GET",
+            "description": "15-minute bearish divergence patterns"
+          },
+          "bullish_divergence_1h": {
+            "path": "/bullish-divergence/1h",
+            "method": "GET",
+            "description": "1-hour bullish divergence patterns"
+          },
+          "bearish_divergence_1h": {
+            "path": "/bearish-divergence/1h",
+            "method": "GET",
+            "description": "1-hour bearish divergence patterns"
+          },
+          "multi_resistance": {
+            "path": "/multi-resistance",
+            "method": "GET",
+            "description": "Multi-timeframe resistance analysis"
+          },
+          "multi_support": {
+            "path": "/multi-support",
+            "method": "GET",
+            "description": "Multi-timeframe support analysis"
+          },
+          "unusual_volume": {
+            "path": "/unusual-volume",
+            "method": "GET",
+            "description": "Unusual volume activity detection"
+          }
+        }
+      },
+      "scanner": {
+        "base_path": "/unified",
+        "endpoints": {
+          "hd_data_fno": {
+            "path": "/fetch_hd_data_fno",
+            "method": "POST",
+            "description": "High Delivery data for F&O stocks",
+            "sample_response": {
+              "data": [
+                {
+                  "Symbol": "RELIANCE",
+                  "param_0": 2450.75,
+                  "param_1": 2398.50,
+                  "param_2": 2547890,
+                  "param_3": 65.8,
+                  "param_4": "2025-08-29 10:30:00"
+                }
+              ],
+              "name": "HD F&O Scanner",
+              "timestamp": "2025-08-29T10:30:00Z"
+            },
+            "parameter_meanings": {
+              "param_0": "LTP (Last Traded Price)",
+              "param_1": "Previous Close",
+              "param_2": "Volume",
+              "param_3": "Average Delivery %",
+              "param_4": "DateTime (YYYY-MM-DD HH:mm:ss)"
+            }
+          },
+          "hd_data_n500": {
+            "path": "/fetch_hd_data_n500",
+            "method": "POST",
+            "description": "High Delivery data for Nifty 500 stocks"
+          },
+          "dsp_data_fno": {
+            "path": "/fetch_dsp_data_fno",
+            "method": "POST",
+            "description": "Delivery Spike data for F&O stocks",
+            "sample_response": {
+              "data": [
+                {
+                  "Symbol": "TCS",
+                  "param_0": 3890.25,
+                  "param_1": 3845.75,
+                  "param_2": 45.2,
+                  "param_3": 67.8,
+                  "param_4": "2025-08-29 10:30:00"
+                }
+              ],
+              "name": "DSP F&O Scanner",
+              "timestamp": "2025-08-29T10:30:00Z"
+            },
+            "parameter_meanings": {
+              "param_0": "LTP (Last Traded Price)",
+              "param_1": "Previous Close",
+              "param_2": "Average Delivery %",
+              "param_3": "Current Delivery %",
+              "param_4": "DateTime (YYYY-MM-DD HH:mm:ss)"
+            }
+          },
+          "dsp_data_n500": {
+            "path": "/fetch_dsp_data_n500",
+            "method": "POST",
+            "description": "Delivery Spike data for Nifty 500 stocks"
+          },
+          "hd_hist": {
+            "path": "/hd_hist",
+            "method": "GET",
+            "description": "Historical high delivery data"
+          }
+        }
+      },
+      "sectorial_flow": {
+        "base_path": "/sector",
+        "endpoints": {
+          "heatmap": {
+            "path": "/heatmap",
+            "method": "GET",
+            "description": "Sectorial flow heatmap",
+            "sample_response": {
+              "data": [
+                {
+                  "Symbol": "IT",
+                  "param_0": 1.85,
+                  "param_1": 25847.50,
+                  "param_2": 25372.75,
+                  "param_3": 125.8,
+                  "param_4": "2025-08-29T10:30:00Z"
+                },
+                {
+                  "Symbol": "Banking",
+                  "param_0": -0.65,
+                  "param_1": 48520.25,
+                  "param_2": 48837.50,
+                  "param_3": -87.2,
+                  "param_4": "2025-08-29T10:30:00Z"
+                }
+              ],
+              "name": "Sectorial Flow Heatmap",
+              "timestamp": "2025-08-29T10:30:00Z"
+            },
+            "parameter_meanings": {
+              "param_0": "% Change",
+              "param_1": "Current Index Value",
+              "param_2": "Previous Close",
+              "param_3": "Flow Intensity",
+              "param_4": "Timestamp"
+            }
+          },
+          "sector_detail": {
+            "path": "/sector/{sector_name}",
+            "method": "GET",
+            "description": "Detailed analysis for specific sector",
+            "parameters": {
+              "sector_name": "Name of the sector (IT, Banking, Pharma, etc.)"
+            }
+          }
+        }
+      },
+      "index_analysis": {
+        "base_path": "/index_analysis",
+        "endpoints": {
+          "nifty50_analysis": {
+            "path": "/index_analysis/NIFTY50",
+            "method": "GET",
+            "description": "NIFTY50 comprehensive option chain analysis",
+            "sample_response": {
+              "data": [
+                {
+                  "Symbol": "NIFTY50",
+                  "param_0": 19850.50,
+                  "param_1": 1.25,
+                  "param_2": 0.85,
+                  "param_3": 19800,
+                  "param_4": "2025-08-29T10:30:00Z"
+                }
+              ],
+              "name": "NIFTY50 Option Analysis",
+              "timestamp": "2025-08-29T10:30:00Z"
+            },
+            "parameter_meanings": {
+              "param_0": "Current Index Price",
+              "param_1": "PCR (Put-Call Ratio)",
+              "param_2": "Max Pain Analysis",
+              "param_3": "Max Pain Strike",
+              "param_4": "Timestamp"
+            },
+            "analysis_features": [
+              "PCR (Put-Call Ratio)",
+              "Max Pain Analysis",
+              "Greeks Analysis (Delta, Gamma, Theta, Vega)",
+              "Volatility Analysis",
+              "Support/Resistance Levels",
+              "Option Chain Visualization"
+            ]
+          },
+          "banknifty_analysis": {
+            "path": "/index_analysis/BANKNIFTY",
+            "method": "GET",
+            "description": "BANKNIFTY comprehensive option chain analysis"
+          },
+          "finnifty_analysis": {
+            "path": "/index_analysis/FINNIFTY",
+            "method": "GET",
+            "description": "FINNIFTY comprehensive option chain analysis"
+          },
+          "midcap_analysis": {
+            "path": "/index_analysis/MIDCAP",
+            "method": "GET",
+            "description": "MIDCAP comprehensive option chain analysis"
+          },
+          "sensex_analysis": {
+            "path": "/index_analysis/SENSEX",
+            "method": "GET",
+            "description": "SENSEX comprehensive option chain analysis"
+          },
+          "expiry": {
+            "path": "/get_running_expiry",
+            "method": "GET",
+            "description": "Get current running expiry dates for options"
+          },
+          "live_oi": {
+            "path": "/live_oi",
+            "method": "GET",
+            "description": "Live Open Interest data",
+            "parameters": {
+              "index": "Index name (NIFTY50, BANKNIFTY, etc.)"
+            }
+          }
+        }
+      },
+      "fii_dii": {
+        "base_path": "/fii-dii",
+        "endpoints": {
+          "net_data": {
+            "path": "/net",
+            "method": "GET",
+            "description": "FII-DII net investment data",
+            "sample_response": {
+              "data": [
+                {
+                  "Symbol": "FII",
+                  "param_0": -1250.75,
+                  "param_1": 2850.25,
+                  "param_2": -4101.00,
+                  "param_3": 65.8,
+                  "param_4": "2025-08-29"
+                },
+                {
+                  "Symbol": "DII",
+                  "param_0": 1850.50,
+                  "param_1": 1625.25,
+                  "param_2": 225.25,
+                  "param_3": 88.2,
+                  "param_4": "2025-08-29"
+                }
+              ],
+              "name": "FII-DII Net Investment",
+              "timestamp": "2025-08-29T10:30:00Z"
+            },
+            "parameter_meanings": {
+              "param_0": "Net Investment (Crores)",
+              "param_1": "Buy Value (Crores)",
+              "param_2": "Sell Value (Crores)",
+              "param_3": "Participation %",
+              "param_4": "Date (YYYY-MM-DD)"
+            }
+          },
+          "breakdown": {
+            "path": "/breakdown",
+            "method": "GET",
+            "description": "Detailed FII-DII breakdown by categories"
+          }
+        }
+      }
+    },
+    "supported_indices": [
+      {
+        "name": "NIFTY50",
+        "description": "Top 50 companies by market cap",
+        "constituent_count": 50
+      },
+      {
+        "name": "BANKNIFTY",
+        "description": "Banking sector index",
+        "constituent_count": 12
+      },
+      {
+        "name": "FINNIFTY",
+        "description": "Financial services index",
+        "constituent_count": 20
+      },
+      {
+        "name": "MIDCAP",
+        "description": "Mid-cap companies index",
+        "constituent_count": 150
+      },
+      {
+        "name": "SENSEX",
+        "description": "BSE flagship index",
+        "constituent_count": 30
+      }
+    ],
+    "global_parameter_system": {
+      "description": "Unified parameter naming convention across all modules",
+      "benefits": [
+        "Consistent data structure across all endpoints",
+        "Simplified frontend integration",
+        "Easy parameter mapping and understanding",
+        "Reduced code complexity",
+        "Better maintainability"
+      ],
+      "implementation": {
+        "backend": "ParamNormalizer service converts all data to param_0 to param_4 format",
+        "frontend": "paramUtils.js provides helper functions for parameter handling",
+        "database": "Raw data stored as-is, transformation happens at API layer"
+      }
+    },
+    "frontend_integration": {
+      "javascript_example": {
+        "description": "How to use the endpoints in frontend JavaScript",
+        "code": "// Using the unified API structure\nfetch('https://api.sharadaresearch.in/swing/adv-dec/NIFTY')\n  .then(response => response.json())\n  .then(data => {\n    // data.data contains array of objects with Symbol, param_0, param_1, etc.\n    data.data.forEach(item => {\n      console.log(`${item.Symbol}: Advance Growth = ${item.param_0}%`);\n    });\n  });"
+      },
+      "parameter_utilities": {
+        "description": "Use paramUtils.js for consistent parameter handling",
+        "functions": [
+          "getParamValue(dataItem, paramKey)",
+          "getParamLabel(dataItem, paramKey)",
+          "formatChartData(data, xParam, yParam)",
+          "formatTableData(data, columns)",
+          "getHeatmapColor(value, intensity)"
+        ]
+      }
+    },
+    "authentication": {
+      "description": "Most endpoints require authentication",
+      "method": "JWT token in Authorization header",
+      "header_format": "Authorization: Bearer <jwt_token>"
+    },
+    "error_handling": {
+      "standard_errors": {
+        "401": "Unauthorized - Authentication required",
+        "403": "Forbidden - Insufficient permissions",
+        "404": "Not Found - Endpoint or resource not found",
+        "500": "Internal Server Error - Backend processing error"
+      },
+      "error_response_format": {
+        "error": "Error message",
+        "code": "Error code",
+        "timestamp": "ISO 8601 timestamp"
+      }
+    }
+  }
+}

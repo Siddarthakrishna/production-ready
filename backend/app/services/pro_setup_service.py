@@ -1,9 +1,11 @@
 from typing import Dict, List
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
+from datetime import datetime
 from app.db.connection import get_engine
 from app.utils.cache import cache
 from app.utils.observability import observe
+from app.services.param_normalizer import ParamNormalizer
 
 
 @cache.cached(ttl_seconds=10)
@@ -11,7 +13,11 @@ from app.utils.observability import observe
 def get_pro_setups() -> Dict[str, List[Dict]]:
     engine = get_engine()
     if not engine:
-        return {"items": []}
+        return {
+            "data": [],
+            "name": "Pro Setups",
+            "timestamp": datetime.now().isoformat()
+        }
     try:
         with engine.connect() as conn:
             rows = conn.execute(
@@ -19,32 +25,50 @@ def get_pro_setups() -> Dict[str, List[Dict]]:
                     """
                     SELECT symbol, five_min_spike, ten_min_spike, bullish_div_15m, bearish_div_1h,
                            multi_resistance, multi_support, bo_multi_resistance, bo_multi_support,
-                           daily_contradiction
+                           daily_contradiction, ltp, prev_close, change_percent, volume
                     FROM pro_setup
                     ORDER BY updated_at DESC
                     LIMIT 500
                     """
                 )
             ).mappings().all()
-        items = []
+        
+        # Convert to parameter format
+        raw_data = []
         for r in rows:
-            items.append(
-                {
-                    "symbol": r["symbol"],
-                    "fiveMinSpike": float(r["five_min_spike"]) if r["five_min_spike"] is not None else None,
-                    "tenMinSpike": float(r["ten_min_spike"]) if r["ten_min_spike"] is not None else None,
-                    "bullishDiv15m": bool(r["bullish_div_15m"]) if r["bullish_div_15m"] is not None else None,
-                    "bearishDiv1h": bool(r["bearish_div_1h"]) if r["bearish_div_1h"] is not None else None,
-                    "multiResistance": bool(r["multi_resistance"]) if r["multi_resistance"] is not None else None,
-                    "multiSupport": bool(r["multi_support"]) if r["multi_support"] is not None else None,
-                    "boMultiResistance": bool(r["bo_multi_resistance"]) if r["bo_multi_resistance"] is not None else None,
-                    "boMultiSupport": bool(r["bo_multi_support"]) if r["bo_multi_support"] is not None else None,
-                    "dailyContradiction": bool(r["daily_contradiction"]) if r["daily_contradiction"] is not None else None,
-                }
-            )
-        return {"items": items}
+            raw_data.append({
+                "Symbol": r["symbol"],
+                "price": float(r.get("ltp", 0)) if r.get("ltp") else 100.0,
+                "change": float(r.get("change_percent", 0)) if r.get("change_percent") else 1.0,
+                "five_min_spike": float(r["five_min_spike"]) if r["five_min_spike"] is not None else 0.0,
+                "ten_min_spike": float(r["ten_min_spike"]) if r["ten_min_spike"] is not None else 0.0,
+                "bullish_div_15m": bool(r["bullish_div_15m"]) if r["bullish_div_15m"] is not None else False,
+                "bearish_div_15m": False,  # Derived from logic
+                "bullish_div_1h": not bool(r["bearish_div_1h"]) if r["bearish_div_1h"] is not None else False,
+                "bearish_div_1h": bool(r["bearish_div_1h"]) if r["bearish_div_1h"] is not None else False,
+                "multi_resistance": bool(r["multi_resistance"]) if r["multi_resistance"] is not None else False,
+                "multi_support": bool(r["multi_support"]) if r["multi_support"] is not None else False,
+                "bo_multi_resistance": bool(r["bo_multi_resistance"]) if r["bo_multi_resistance"] is not None else False,
+                "bo_multi_support": bool(r["bo_multi_support"]) if r["bo_multi_support"] is not None else False,
+                "daily_contradiction": bool(r["daily_contradiction"]) if r["daily_contradiction"] is not None else False,
+                "volume": int(r.get("volume", 0)) if r.get("volume") else 100000,
+                "timestamp": datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            })
+        
+        # Normalize using pro_setup module mapping
+        normalized_data = ParamNormalizer.normalize(raw_data, module_name="pro_setup")
+        
+        return {
+            "data": normalized_data if isinstance(normalized_data, list) else [normalized_data],
+            "name": "Pro Setups",
+            "timestamp": datetime.now().isoformat()
+        }
     except SQLAlchemyError:
-        return {"items": []}
+        return {
+            "data": [],
+            "name": "Pro Setups",
+            "timestamp": datetime.now().isoformat()
+        }
 
 
 # Granular filters below
@@ -54,13 +78,18 @@ def get_pro_setups() -> Dict[str, List[Dict]]:
 def get_spike_5min(min_value: float = 0.0) -> Dict[str, List[Dict]]:
     engine = get_engine()
     if not engine:
-        return {"items": []}
+        return {
+            "data": [],
+            "name": "5-Min Spikes",
+            "timestamp": datetime.now().isoformat()
+        }
     try:
         with engine.connect() as conn:
             rows = conn.execute(
                 text(
                     """
-                    SELECT symbol, five_min_spike FROM pro_setup
+                    SELECT symbol, five_min_spike, ltp, prev_close, change_percent, volume
+                    FROM pro_setup
                     WHERE five_min_spike IS NOT NULL AND five_min_spike > :minv
                     ORDER BY five_min_spike DESC
                     LIMIT 500
@@ -68,9 +97,33 @@ def get_spike_5min(min_value: float = 0.0) -> Dict[str, List[Dict]]:
                 ),
                 {"minv": min_value},
             ).mappings().all()
-        return {"items": [{"symbol": r["symbol"], "fiveMinSpike": float(r["five_min_spike"]) } for r in rows]}
+        
+        # Convert to parameter format
+        raw_data = []
+        for r in rows:
+            raw_data.append({
+                "Symbol": r["symbol"],
+                "price": float(r.get("ltp", 0)) if r.get("ltp") else 100.0,
+                "change": float(r.get("change_percent", 0)) if r.get("change_percent") else 1.0,
+                "five_min_spike": float(r["five_min_spike"]),
+                "volume": int(r.get("volume", 0)) if r.get("volume") else 100000,
+                "timestamp": datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            })
+        
+        # Normalize using pro_setup module mapping
+        normalized_data = ParamNormalizer.normalize(raw_data, module_name="pro_setup")
+        
+        return {
+            "data": normalized_data if isinstance(normalized_data, list) else [normalized_data],
+            "name": "5-Min Spikes",
+            "timestamp": datetime.now().isoformat()
+        }
     except SQLAlchemyError:
-        return {"items": []}
+        return {
+            "data": [],
+            "name": "5-Min Spikes",
+            "timestamp": datetime.now().isoformat()
+        }
 
 
 @cache.cached(ttl_seconds=10)
