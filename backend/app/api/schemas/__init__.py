@@ -188,6 +188,79 @@ class FnoHeatmapResponse(BaseModel):
     items: List[FnoHeatmapItem] = []
 
 
+# Sector Analysis Schemas
+class SectorStock(BaseModel):
+    symbol: str
+    price: Optional[float] = None
+    priceChange: Optional[float] = None
+    priceChangePercent: Optional[float] = None
+    volume: Optional[int] = None
+    marketCap: Optional[int] = None
+    heatValue: Optional[float] = None
+    rFactor: Optional[float] = None
+    sector: Optional[str] = None
+
+
+class SectorHeatmapResponse(BaseModel):
+    data: List[Dict[str, Any]] = []
+    name: str = "Sector Heatmap"
+    timestamp: Optional[str] = None
+    total_sectors: Optional[int] = None
+
+
+class SectorDetailResponse(BaseModel):
+    data: List[Dict[str, Any]] = []
+    name: str = "Sector Detail"
+    timestamp: Optional[str] = None
+    sector_heat_score: Optional[float] = None
+
+
+# Market Depth Schemas
+class MarketDepthItem(BaseModel):
+    symbol: str
+    price: Optional[float] = None
+    priceChange: Optional[float] = None
+    volume: Optional[int] = None
+    marketCap: Optional[int] = None
+    heatValue: Optional[float] = None
+
+
+class MarketDepthResponse(BaseModel):
+    data: List[Dict[str, Any]] = []
+    name: str = "Market Depth"
+    timestamp: Optional[str] = None
+
+
+# Pro Setup Schemas
+class ProSetupItem(BaseModel):
+    symbol: str
+    price: Optional[float] = None
+    priceChange: Optional[float] = None
+    signal: Optional[str] = None
+    strength: Optional[float] = None
+
+
+class ProSetupResponse(BaseModel):
+    data: List[Dict[str, Any]] = []
+    name: str = "Pro Setup"
+    timestamp: Optional[str] = None
+
+
+# Swing Analysis Schemas
+class SwingItem(BaseModel):
+    symbol: str
+    price: Optional[float] = None
+    priceChange: Optional[float] = None
+    swingType: Optional[str] = None
+    strength: Optional[float] = None
+
+
+class SwingResponse(BaseModel):
+    data: List[Dict[str, Any]] = []
+    name: str = "Swing Analysis"
+    timestamp: Optional[str] = None
+
+
 # FII/DII
 class FiiDiiNet(BaseModel):
     date: str

@@ -267,13 +267,20 @@ MODULE_PARAMS = {
     # Sectorial Flow Module
     "sectorial_flow": {
         "heatmap": ParamType.HEATMAP_VALUE,
-        "intensity": ParamType.VOLUME,
         "price": ParamType.PRICE,
+        "prev_close": ParamType.PREV_CLOSE,
         "change": ParamType.PERCENT_CHANGE,
         "volume": ParamType.VOLUME,
         "r_factor": ParamType.R_FACTOR,
         "timestamp": ParamType.TIMESTAMP,
-        "sector": ParamType.SECTOR
+        "sector": ParamType.SECTOR,
+        "sector_code": ParamType.SYMBOL_NAME,
+        "market_cap": ParamType.HEATMAP_SIZE,
+        "volume_ratio": ParamType.VOLUME_RATIO,
+        "heat_score": ParamType.HEATMAP_INTENSITY,
+        "advancing": ParamType.VOLUME_TREND,
+        "declining": ParamType.VOLUME_SPIKE,
+        "advance_decline_ratio": ParamType.FLOW_RATIO
     },
     
     # Market Depth Module

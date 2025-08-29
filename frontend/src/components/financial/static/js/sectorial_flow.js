@@ -288,6 +288,22 @@ $(document).ready(function () {
                 // Refresh market breadth data every 30 seconds
                 setInterval(updateMarketBreadthData, 30000);
             }
+            
+            // Initialize Sectorial Heatmap
+            if ($('#sectorial_heatmap_container').length && typeof SectorialHeatmap !== 'undefined') {
+                try {
+                    window.sectorialHeatmap = new SectorialHeatmap('sectorial_heatmap_container', {
+                        apiBase: window.DATA_API_BASE || 'http://localhost:8001/api',
+                        updateInterval: 30000, // 30 seconds auto-refresh
+                        enableDrillDown: true,
+                        showTooltips: true
+                    });
+                    
+                    console.log('Sectorial heatmap initialized successfully');
+                } catch (error) {
+                    console.error('Error initializing sectorial heatmap:', error);
+                }
+            }
 
             $('#sectorial_1_nifty50').DataTable({
                 "lengthMenu": [[-1], ["All"]],

@@ -9,9 +9,9 @@ from fastapi import HTTPException, status
 
 from app.db.connection import db_session
 from app.db.models import SwingCentre
-from app.core.logger import get_logger
+import logging
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 def get_swings(limit: int = 200, offset: int = 0) -> Dict[str, Any]:
     """

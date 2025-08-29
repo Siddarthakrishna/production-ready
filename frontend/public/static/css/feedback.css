@@ -1,0 +1,90 @@
+.swing-heading {
+  padding: 15px;
+  margin-bottom: 20px;
+  color: #fff;
+  font-size: 24px;
+  font-weight: 500;
+}
+
+input[type="text"],
+input[type="tel"],
+input[type="file"],
+input[type="email"],
+textarea,
+select {
+  background: linear-gradient(to bottom, #252525, #3a3a3a) !important;
+  color: #e2e2e2 !important;
+  border-radius: 5px;
+  border: 0px solid linear-gradient(to bottom, #252525, #3a3a3a);
+}
+
+.form-select option {
+  background-color: #252525;
+  color: #e2e2e2 !important;
+}
+
+input[type="file"] {
+  width: 100%;
+}
+
+input[type="text"],
+input[type="tel"],
+input[type="email"],
+select {
+  height: 50px;
+}
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #b0b0b0 !important; /* Change to your desired color */
+}
+
+@media (max-width: 1325px) {
+  .heading_row {
+    padding-top: 1.375rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .swing-heading {
+    font-size: 20px;
+    padding-left: 10px;
+    padding-right: 0;
+  }
+}
+
+@media (max-width: 475px) {
+  .swing-heading {
+    font-size: 17px;
+  }
+}
+
+@media (max-width: 405px) {
+  .swing-heading {
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 360px) {
+  .swing-heading {
+    font-size: 14px;
+  }
+}
+
+.btn-outline-warning {
+  --bs-btn-color: #ffc24f;
+  --bs-btn-border-color: #ffc24f;
+  --bs-btn-hover-bg: #ffc24f;
+  --bs-btn-hover-border-color: #ffc24f;
+  --bs-btn-active-bg: #ffc24f;
+  --bs-btn-active-border-color: #ffc24f;
+  --bs-btn-disabled-color: #ffc24f;
+  --bs-btn-disabled-border-color: #ffc24f;
+}

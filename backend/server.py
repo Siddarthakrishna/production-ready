@@ -28,6 +28,11 @@ app = FastAPI(
     openapi_url="/api/v1/openapi.json"
 )
 
+# Add root endpoint for server verification
+@app.get("/")
+async def root():
+    return {"message": "Welcome to Sharada Research API - Server is running!", "status": "active"}
+
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
@@ -60,45 +65,49 @@ async def get_portfolio_data():
 async def get_skills():
     return {"skills": ["Python", "JavaScript", "React", "Node.js", "FastAPI", "MongoDB"]}
 
-# Import and include financial application routers
-try:
-    # Import routers from the financial application
-    from app.api.index import router as index_router
-    from app.api.fii_dii import router as fii_dii_router
-    from app.api.money_flux import router as money_flux_router
-    from app.api.fno import router as fno_router
-    from app.api.sector import router as sector_router
-    from app.api.market_depth import router as market_depth_router
-    from app.api.pro_setup import router as pro_setup_router
-    from app.api.swing import router as swing_router
-    from app.api.journal import router as journal_router
-    from app.api.watchlist import router as watchlist_router
-    from app.api.mock_data import router as mock_data_router
-    from app.api.ollama import router as ollama_router
-    from app.api.fyers import router as fyers_router
-    # Import the new unified study API
-    from app.api.unified_study import router as unified_study_router
+# Import and include financial application routers with error-resilient startup
+routers_to_include = [
+    ('app.api.index', 'index_router'),
+    ('app.api.fii_dii', 'fii_dii_router'),
+    ('app.api.money_flux', 'money_flux_router'),
+    ('app.api.fno', 'fno_router'),
+    ('app.api.sector', 'sector_router'),
+    ('app.api.market_depth', 'market_depth_router'),
+    ('app.api.pro_setup', 'pro_setup_router'),
+    ('app.api.swing', 'swing_router'),
+    ('app.api.journal', 'journal_router'),
+    ('app.api.watchlist', 'watchlist_router'),
+    ('app.api.mock_data', 'mock_data_router'),
+    ('app.api.ollama', 'ollama_router'),
+    ('app.api.fyers', 'fyers_router'),
+    ('app.api.unified_study', 'unified_study_router'),
+]
 
-    # Include the routers
-    api.include_router(index_router)
-    api.include_router(fii_dii_router)
-    api.include_router(money_flux_router)
-    api.include_router(fno_router)
-    api.include_router(sector_router)
-    api.include_router(market_depth_router)
-    api.include_router(pro_setup_router)
-    api.include_router(swing_router)
-    api.include_router(journal_router)
-    api.include_router(watchlist_router)
-    api.include_router(mock_data_router)
-    api.include_router(ollama_router)
-    api.include_router(fyers_router)
-    # Include the unified study API for param format
-    api.include_router(unified_study_router)
+successful_routers = []
+failed_routers = []
 
-    logger.info("Financial application routers successfully included")
-except Exception as e:
-    logger.error(f"Error importing financial application routers: {e}")
+for module_path, router_name in routers_to_include:
+    try:
+        module = __import__(module_path, fromlist=[router_name])
+        router = getattr(module, 'router')
+        
+        # Validate router has required attributes
+        if hasattr(router, 'routes') and hasattr(router, 'prefix'):
+            api.include_router(router)
+            successful_routers.append(router_name)
+            logger.info(f"Successfully included router: {router_name}")
+        else:
+            logger.warning(f"Router {router_name} missing required attributes, skipping")
+            failed_routers.append(router_name)
+    except Exception as e:
+        logger.error(f"Error importing router {router_name}: {e}")
+        failed_routers.append(router_name)
+
+logger.info(f"Router inclusion summary: {len(successful_routers)} successful, {len(failed_routers)} failed")
+if successful_routers:
+    logger.info(f"Successful routers: {', '.join(successful_routers)}")
+if failed_routers:
+    logger.warning(f"Failed routers: {', '.join(failed_routers)}")
 
 # Auth endpoints
 @api.post("/auth/login")

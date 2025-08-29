@@ -74,6 +74,7 @@ const FinancialPage = ({ pageName }) => {
 
 // Import the Dashboard component
 import Dashboard from "./components/financial/Dashboard";
+import MainDashboard from "./components/Dashboard";
 
 function App() {
   return (
@@ -82,7 +83,8 @@ function App() {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/landing" element={<LandingPage />} />
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard" element={<MainDashboard />} />
+          <Route path="/home" element={<Dashboard />} />
           <Route path="/fii_dii_data" element={<FinancialPage pageName="FII/DII Data" />} />
           <Route path="/fno" element={<FinancialPage pageName="F&O Analysis" />} />
           <Route path="/sectorial_flow" element={<FinancialPage pageName="Sectorial Flow" />} />

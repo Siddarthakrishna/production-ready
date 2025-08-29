@@ -87,12 +87,44 @@ GET https://api.sharadaresearch.in/unified/hd_hist
 
 ## Sectorial Flow Module
 ```
+# Legacy Endpoints
 GET https://api.sharadaresearch.in/sector/heatmap
 GET https://api.sharadaresearch.in/sector/IT
 GET https://api.sharadaresearch.in/sector/Banking
 GET https://api.sharadaresearch.in/sector/Pharma
 GET https://api.sharadaresearch.in/sector/Auto
 GET https://api.sharadaresearch.in/sector/FMCG
+
+# Enhanced Heatmap Endpoints
+GET https://api.sharadaresearch.in/sector/heatmap/sectors
+GET https://api.sharadaresearch.in/sector/heatmap/sectors?sector_filter=NIFTY50
+GET https://api.sharadaresearch.in/sector/heatmap/sectors?sector_filter=BANKNIFTY
+GET https://api.sharadaresearch.in/sector/heatmap/sectors?sector_filter=NIFTYAUTO
+GET https://api.sharadaresearch.in/sector/heatmap/sectors?sector_filter=NIFTYFINSERVICE
+GET https://api.sharadaresearch.in/sector/heatmap/sectors?sector_filter=NIFTYFMCG
+GET https://api.sharadaresearch.in/sector/heatmap/sectors?sector_filter=CNXIT
+GET https://api.sharadaresearch.in/sector/heatmap/sectors?sector_filter=NIFTYMEDIA
+GET https://api.sharadaresearch.in/sector/heatmap/sectors?sector_filter=NIFTYMETAL
+GET https://api.sharadaresearch.in/sector/heatmap/sectors?sector_filter=CNXPHARMA
+GET https://api.sharadaresearch.in/sector/heatmap/sectors?sector_filter=NIFTYPSUBANK
+GET https://api.sharadaresearch.in/sector/heatmap/sectors?sector_filter=NIFTYPVTBANK
+GET https://api.sharadaresearch.in/sector/heatmap/sectors?sector_filter=CNXREALTY
+GET https://api.sharadaresearch.in/sector/heatmap/sectors?sector_filter=CNXENERGY
+GET https://api.sharadaresearch.in/sector/heatmap/stocks/NIFTY50
+GET https://api.sharadaresearch.in/sector/heatmap/stocks/BANKNIFTY
+GET https://api.sharadaresearch.in/sector/heatmap/stocks/NIFTYAUTO
+GET https://api.sharadaresearch.in/sector/heatmap/stocks/NIFTYFINSERVICE
+GET https://api.sharadaresearch.in/sector/heatmap/stocks/NIFTYFMCG
+GET https://api.sharadaresearch.in/sector/heatmap/stocks/CNXIT
+GET https://api.sharadaresearch.in/sector/heatmap/stocks/NIFTYMEDIA
+GET https://api.sharadaresearch.in/sector/heatmap/stocks/NIFTYMETAL
+GET https://api.sharadaresearch.in/sector/heatmap/stocks/CNXPHARMA
+GET https://api.sharadaresearch.in/sector/heatmap/stocks/NIFTYPSUBANK
+GET https://api.sharadaresearch.in/sector/heatmap/stocks/NIFTYPVTBANK
+GET https://api.sharadaresearch.in/sector/heatmap/stocks/CNXREALTY
+GET https://api.sharadaresearch.in/sector/heatmap/stocks/CNXENERGY
+GET https://api.sharadaresearch.in/sector/heatmap/stocks
+GET https://api.sharadaresearch.in/sector/summary
 ```
 
 ## FII/DII Module
@@ -144,6 +176,30 @@ curl -X GET "https://api.sharadaresearch.in/index_analysis/index_analysis/NIFTY5
 curl -X GET "https://api.sharadaresearch.in/index/NIFTY50/comprehensive-option-analysis" -H "Content-Type: application/json"
 ```
 
+### Test Sectorial Flow Heatmap
+```bash
+# Test legacy endpoints
+curl -X GET "https://api.sharadaresearch.in/sector/heatmap" -H "Content-Type: application/json"
+curl -X GET "https://api.sharadaresearch.in/sector/IT" -H "Content-Type: application/json"
+
+# Test enhanced sector overview heatmap
+curl -X GET "https://api.sharadaresearch.in/sector/heatmap/sectors" -H "Content-Type: application/json"
+curl -X GET "https://api.sharadaresearch.in/sector/heatmap/sectors?sector_filter=NIFTY50" -H "Content-Type: application/json"
+curl -X GET "https://api.sharadaresearch.in/sector/heatmap/sectors?sector_filter=BANKNIFTY" -H "Content-Type: application/json"
+
+# Test sector stock-level heatmaps
+curl -X GET "https://api.sharadaresearch.in/sector/heatmap/stocks/NIFTYAUTO" -H "Content-Type: application/json"
+curl -X GET "https://api.sharadaresearch.in/sector/heatmap/stocks/NIFTYFMCG" -H "Content-Type: application/json"
+curl -X GET "https://api.sharadaresearch.in/sector/heatmap/stocks/CNXIT" -H "Content-Type: application/json"
+curl -X GET "https://api.sharadaresearch.in/sector/heatmap/stocks/BANKNIFTY" -H "Content-Type: application/json"
+
+# Test all stocks heatmap
+curl -X GET "https://api.sharadaresearch.in/sector/heatmap/stocks" -H "Content-Type: application/json"
+
+# Test sector summary
+curl -X GET "https://api.sharadaresearch.in/sector/summary" -H "Content-Type: application/json"
+```
+
 ### Test Scanner (POST requests)
 ```bash
 curl -X POST "https://api.sharadaresearch.in/unified/fetch_hd_data_fno" -H "Content-Type: application/json" -d "{}"
@@ -175,3 +231,18 @@ All endpoints return data in this standardized format:
 3. POST endpoints for scanner may require empty JSON body `{}`
 4. Index names supported: NIFTY50, BANKNIFTY, FINNIFTY, MIDCAP, SENSEX
 5. All endpoints follow the global parameter system (param_0 to param_4)
+6. **Sectorial Flow Heatmap Features:**
+   - Legacy endpoints maintain backward compatibility
+   - Enhanced endpoints provide interactive heatmap data
+   - Sector codes supported: NIFTY50, BANKNIFTY, NIFTYAUTO, NIFTYFINSERVICE, NIFTYFMCG, CNXIT, NIFTYMEDIA, NIFTYMETAL, CNXPHARMA, NIFTYPSUBANK, NIFTYPVTBANK, CNXREALTY, CNXENERGY
+   - `/sector/heatmap/sectors` returns sector-level overview
+   - `/sector/heatmap/stocks/{sector_code}` returns constituent stocks for specific sector
+   - `/sector/heatmap/stocks` returns all stocks across all sectors
+   - `/sector/summary` returns sector performance summary with advance/decline ratios
+   - sector_filter parameter allows filtering sector overview by specific sector
+7. **Heatmap Data Format:**
+   - param_500 (or param_2): Heatmap value/% change for color coding
+   - param_0: Last traded price
+   - param_5: Volume for size representation
+   - param_3: R-Factor for momentum analysis
+   - Additional fields: sector, sector_code, market_cap, volume_ratio
