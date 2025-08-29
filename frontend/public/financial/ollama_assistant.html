@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Assistant | Sharada Research</title>
+    
+    <!-- CSS Dependencies -->
+    <link rel="stylesheet" type="text/css" href="static/css/bootstrap_5.3.css">
+    <link rel="stylesheet" type="text/css" href="static/css/header.css">
+    <link rel="stylesheet" type="text/css" href="static/css/ollama_assistant.css">
+    <link rel="stylesheet" type="text/css" href="static/css/remixicon.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Enhanced Ollama Assistant CSS -->
+    <style>
+        .ollama-container {
+            padding: 20px;
+            background-color: #f8f9fa;
+            min-height: 100vh;
+        }
+        
+        .ai-header {
+            background: linear-gradient(135deg, #8e44ad 0%, #3498db 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .ai-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        .status-success {
+            background-color: #27ae60;
+        }
+        
+        .status-error {
+            background-color: #e74c3c;
+        }
+        
+        .status-warning {
+            background-color: #f39c12;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .chat-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            overflow: hidden;
+            height: 600px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chat-header {
+            background-color: #f8f9fa;
+            padding: 15px 20px;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background-color: #fafafa;
+        }
+        
+        .chat-message {
+            margin-bottom: 20px;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        
+        .message-sender {
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+        
+        .message-time {
+            font-size: 0.8em;
+            color: #6c757d;
+        }
+        
+        .message-content {
+            padding: 12px 15px;
+            border-radius: 10px;
+            line-height: 1.5;
+        }
+        
+        .user-message .message-content {
+            background-color: #007bff;
+            color: white;
+            margin-left: 20%;
+        }
+        
+        .assistant-message .message-content {
+            background-color: white;
+            border: 1px solid #dee2e6;
+            margin-right: 20%;
+        }
+        
+        .system-message .message-content {
+            background-color: #e9ecef;
+            color: #495057;
+            text-align: center;
+            font-style: italic;
+        }
+        
+        .error-message .message-content {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .chat-input {
+            border-top: 1px solid #dee2e6;
+            padding: 15px 20px;
+            background-color: white;
+        }
+        
+        .typing-indicator {
+            margin-right: 20%;
+        }
+        
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+            padding: 12px 15px;
+        }
+        
+        .typing-dots span {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #007bff;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+        
+        .typing-dots span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dots span:nth-child(2) { animation-delay: -0.16s; }
+        
+        @keyframes typing {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+        
+        .quick-actions {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .quick-action-btn {
+            margin: 5px;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 20px;
+            background-color: #e9ecef;
+            color: #495057;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        
+        .quick-action-btn:hover {
+            background-color: #007bff;
+            color: white;
+            transform: translateY(-1px);
+        }
+        
+        .model-selector {
+            margin-bottom: 15px;
+        }
+        
+        .stock-symbol {
+            color: #007bff;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .stock-symbol:hover {
+            text-decoration: underline;
+        }
+        
+        .analysis-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .analysis-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            font-weight: 600;
+            color: #8e44ad;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .feature-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-2px);
+        }
+        
+        .feature-icon {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+        }
+        
+        .integration-panel {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Header -->
+    <header class="header">
+        <div class="container">
+            <nav class="navbar">
+                <a href="/" class="navbar-brand">
+                    <h3>Sharada Research</h3>
+                </a>
+                <div class="navbar-nav">
+                    <a href="index.html" class="nav-link">Dashboard</a>
+                    <a href="watchlist.html" class="nav-link">Watchlist</a>
+                    <a href="trading_journal.html" class="nav-link">Journal</a>
+                    <a href="ollama_assistant.html" class="nav-link active">AI Assistant</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="ollama-container">
+        <div class="container-fluid">
+            <!-- AI Assistant Header -->
+            <div class="ai-header">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h1><i class="fa-solid fa-robot"></i> AI Trading Assistant</h1>
+                        <p class="mb-0">Powered by Ollama - Get intelligent insights, analysis, and trading recommendations</p>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="ai-status">
+                            <div class="status-indicator" id="ollamaStatus"></div>
+                            <span id="ollamaStatusText">Checking AI status...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Main Chat Interface -->
+                <div class="col-lg-8">
+                    <!-- Quick Actions -->
+                    <div class="quick-actions">
+                        <h5><i class="fa-solid fa-zap"></i> Quick Analysis</h5>
+                        <button class="quick-action-btn" onclick="ollamaAssistant.quickAnalysis('market_overview')">
+                            📊 Market Overview
+                        </button>
+                        <button class="quick-action-btn" onclick="ollamaAssistant.quickAnalysis('sector_analysis')">
+                            🏭 Sector Analysis
+                        </button>
+                        <button class="quick-action-btn" onclick="ollamaAssistant.quickAnalysis('risk_assessment')">
+                            ⚠️ Risk Assessment
+                        </button>
+                        <button class="quick-action-btn" onclick="ollamaAssistant.quickAnalysis('opportunities')">
+                            💡 Trading Opportunities
+                        </button>
+                    </div>
+
+                    <!-- Chat Container -->
+                    <div class="chat-container">
+                        <div class="chat-header">
+                            <div>
+                                <h5 class="mb-0"><i class="fa-solid fa-comments"></i> AI Chat</h5>
+                                <small class="text-muted">Ask anything about trading, stocks, or market analysis</small>
+                            </div>
+                            <div>
+                                <button class="btn btn-sm btn-outline-secondary" id="clearChat">
+                                    <i class="fa-solid fa-trash"></i> Clear
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="chat-messages" id="ollamaChatContainer">
+                            <!-- Messages will be populated by JavaScript -->
+                        </div>
+                        
+                        <div class="chat-input">
+                            <form id="ollamaForm">
+                                <div class="row">
+                                    <div class="col-md-3 mb-2">
+                                        <select class="form-select form-select-sm" id="ollamaModel">
+                                            <option value="llama2">llama2</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-9">
+                                        <div class="input-group">
+                                            <textarea class="form-control" id="ollamaInput" 
+                                                    placeholder="Ask me about stocks, trading strategies, market analysis..."
+                                                    rows="2" style="resize: none;"></textarea>
+                                            <button class="btn btn-primary" type="submit" id="ollamaSubmit">
+                                                <i class="fa-solid fa-paper-plane"></i> Send
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Features Sidebar -->
+                <div class="col-lg-4">
+                    <!-- Integration Panel -->
+                    <div class="integration-panel">
+                        <h5><i class="fa-solid fa-link"></i> Integrations</h5>
+                        <div class="d-grid gap-2">
+                            <a href="watchlist.html" class="btn btn-outline-primary">
+                                <i class="fa-solid fa-list"></i> Analyze Watchlist
+                            </a>
+                            <a href="trading_journal.html" class="btn btn-outline-success">
+                                <i class="fa-solid fa-book"></i> Journal Insights
+                            </a>
+                            <button class="btn btn-outline-info" onclick="showPortfolioAnalysis()">
+                                <i class="fa-solid fa-chart-pie"></i> Portfolio Analysis
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Feature Cards -->
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <div class="feature-icon">📊</div>
+                            <h6>Stock Analysis</h6>
+                            <p class="small text-muted">Get detailed analysis of any stock with current market data</p>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <div class="feature-icon">💡</div>
+                            <h6>Trade Rationale</h6>
+                            <p class="small text-muted">Generate buy/sell rationale with risk assessment</p>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <div class="feature-icon">📝</div>
+                            <h6>Note Enhancement</h6>
+                            <p class="small text-muted">Improve your trading notes with AI suggestions</p>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <div class="feature-icon">📈</div>
+                            <h6>Portfolio Insights</h6>
+                            <p class="small text-muted">Get comprehensive portfolio analysis and recommendations</p>
+                        </div>
+                    </div>
+
+                    <!-- Sample Analysis Card -->
+                    <div class="analysis-card">
+                        <div class="analysis-header">
+                            <i class="fa-solid fa-lightbulb"></i>
+                            <span>AI Capabilities</span>
+                        </div>
+                        <ul class="small">
+                            <li>Real-time stock analysis</li>
+                            <li>Market sentiment evaluation</li>
+                            <li>Technical indicator interpretation</li>
+                            <li>Risk assessment and management</li>
+                            <li>Trading strategy recommendations</li>
+                            <li>Portfolio optimization advice</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Portfolio Analysis Modal -->
+    <div class="modal fade" id="portfolioAnalysisModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fa-solid fa-chart-pie"></i> Portfolio Analysis
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center">
+                        <p>Connect your watchlist to get AI-powered portfolio insights.</p>
+                        <a href="watchlist.html" class="btn btn-primary">
+                            <i class="fa-solid fa-list"></i> Go to Watchlist
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stock Analysis Modal -->
+    <div class="modal fade" id="stockAnalysisModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fa-solid fa-chart-line"></i> Stock Analysis
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="stockAnalysisForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="analysisSymbol" class="form-label">Stock Symbol</label>
+                                    <input type="text" class="form-control" id="analysisSymbol" placeholder="e.g., RELIANCE">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="analysisPrice" class="form-label">Current Price (₹)</label>
+                                    <input type="number" class="form-control" id="analysisPrice" step="0.01">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="analysisChange" class="form-label">Price Change (%)</label>
+                                    <input type="number" class="form-control" id="analysisChange" step="0.01">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="analysisType" class="form-label">Analysis Type</label>
+                                    <select class="form-select" id="analysisType">
+                                        <option value="summary">Summary</option>
+                                        <option value="trade_rationale">Trade Rationale</option>
+                                        <option value="risk_analysis">Risk Analysis</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="runStockAnalysis()">
+                        <i class="fa-solid fa-robot"></i> Analyze
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Dependencies -->
+    <script src="static/js/jquery_3.7.0.js"></script>
+    <script src="static/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Module Scripts -->
+    <script src="static/js/modules/ollama_core.js"></script>
+    <script src="static/js/modules/ollama_ui.js"></script>
+    <script src="static/js/modules/ollama_analytics.js"></script>
+    
+    <!-- Ollama Assistant JavaScript -->
+    <script src="static/js/ollama_assistant_refactored.js"></script>
+    
+    <!-- Page-specific JavaScript -->
+    <script>
+        // Initialize Ollama assistant when page loads
+        $(document).ready(function() {
+            initializeOllamaAssistant();
+        });
+
+        // Show portfolio analysis modal
+        function showPortfolioAnalysis() {
+            $('#portfolioAnalysisModal').modal('show');
+        }
+
+        // Run stock analysis from modal
+        function runStockAnalysis() {
+            const symbol = $('#analysisSymbol').val();
+            const price = parseFloat($('#analysisPrice').val()) || null;
+            const change = parseFloat($('#analysisChange').val()) || null;
+            const type = $('#analysisType').val();
+
+            if (!symbol) {
+                alert('Please enter a stock symbol');
+                return;
+            }
+
+            $('#stockAnalysisModal').modal('hide');
+
+            if (type === 'trade_rationale') {
+                ollamaAssistant.generateTradeRationale(symbol, 'BUY', price);
+            } else {
+                ollamaAssistant.analyzeStock(symbol, price, change);
+            }
+        }
+
+        // Quick stock analysis button
+        function quickStockAnalysis() {
+            $('#stockAnalysisModal').modal('show');
+        }
+
+        // Integration with other pages
+        function integrateWithWatchlist() {
+            window.location.href = 'watchlist.html';
+        }
+
+        function integrateWithJournal() {
+            window.location.href = 'trading_journal.html';
+        }
+
+        // Auto-check health every 5 minutes
+        setInterval(function() {
+            if (ollamaAssistant) {
+                ollamaAssistant.checkOllamaHealth();
+            }
+        }, 300000);
+    </script>
+
+    <!-- Add floating action button for quick analysis -->
+    <div style="position: fixed; bottom: 20px; right: 20px; z-index: 1000;">
+        <button class="btn btn-primary btn-lg rounded-circle" onclick="quickStockAnalysis()" 
+                style="width: 60px; height: 60px;" title="Quick Stock Analysis">
+            <i class="fa-solid fa-chart-line"></i>
+        </button>
+    </div>
+</body>
+</html>

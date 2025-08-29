@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sharada Research — Market Insight, Strategy, and Precision</title>
+  <meta name="description" content="Sharada Research: High-conviction market insights, strategy, and precision. Investment ideas, swing signals, research blogs, and more." />
+  <meta name="theme-color" content="#0a0a0a" />
+  <link rel="icon" href="static/img/Tredcode_logo.png" sizes="32x32" />
+  <link rel="icon" href="static/img/Tredcode_logo.png" sizes="192x192" />
+
+  <!-- SEO / Social -->
+  <meta property="og:title" content="Sharada Research" />
+  <meta property="og:description" content="Market Insight, Strategy, and Precision." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="img/Tredcode_logo.png" />
+  <meta property="og:url" content="/frontpage.html" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <!-- Base CSS -->
+  <link rel="stylesheet" type="text/css" href="static/css/bootstrap_5.3.css" />
+  <link rel="stylesheet" type="text/css" href="static/css/all.min.css" />
+  <link rel="stylesheet" type="text/css" href="static/css/analyst_front.css" />
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet" />
+
+</head>
+<body class="front-dark">
+  <!-- Sticky Navigation -->
+  <header id="mainNav" class="glass sticky-top">
+    <div class="container d-flex align-items-center justify-content-between py-2">
+      <a class="brand d-flex align-items-center" href="home.html">
+        <img src="static/img/sharadalogo.png" alt="Sharada Research" class="brand-logo me-2" />
+        <span class="brand-text">Sharada Research</span>
+      </a>
+      <nav class="d-none d-md-flex gap-3">
+        <a href="#home" class="nav-link">Home</a>
+        <a href="#about" class="nav-link">About</a>
+        <a href="#ideas" class="nav-link">Ideas</a>
+        <a href="blogs.html" class="nav-link">Blog</a>
+        <a href="#contact" class="nav-link">Contact</a>
+      </nav>
+      <div class="d-flex align-items-center gap-2">
+        <button class="btn menu-toggle d-md-none" id="menuToggle" aria-label="menu">
+          <i class="fa fa-bars"></i>
+        </button>
+      </div>
+    </div>
+    <div id="mobileMenu" class="mobile-menu d-md-none">
+      <a href="#home" class="nav-link">Home</a>
+      <a href="#about" class="nav-link">About</a>
+      <a href="#ideas" class="nav-link">Ideas</a>
+      <a href="blogs.html" class="nav-link">Blog</a>
+      <a href="#contact" class="nav-link">Contact</a>
+    </div>
+  </header>
+ >
+
+  <!-- NIFTY 50 data strip (powered by backend) -->
+  <div class="container mt-2">
+    <div id="nifty50-strip" class="glass p-2" aria-live="polite">
+      <div class="small text-muted">NIFTY 50.</div>
+    </div>
+  </div>
+
+  <!-- Hero Section -->
+  <section id="home" class="hero-section">
+    <div class="fx-grid">
+      <div class="fx-line"></div>
+      <div class="fx-line"></div>
+      <div class="fx-line"></div>
+      <div class="fx-line"></div>
+    </div>
+    <div class="container position-relative">
+      <div class="row align-items-center py-5">
+        <div class="col-lg-5 text-center text-lg-start">
+          <div class="profile-wrapper mx-auto mx-lg-0">
+            <img src="static/img/usericon.png" class="profile-pic" alt="Analyst" />
+          </div>
+          <h1 class="headline mt-4">Sharada Research</h1>
+          <p class="tagline">Market Insight, Strategy, and Precision.</p>
+          <div class="mt-4 d-flex gap-3 justify-content-center justify-content-lg-start">
+            <a href="#ideas" class="btn btn-cta">Explore Ideas</a>
+            <a href="#contact" class="btn btn-ghost">Contact Me</a>
+          </div>
+        </div>
+        <div class="col-lg-7 mt-5 mt-lg-0">
+          <div class="glass p-2">
+            <img src="static/img/ktm.avif" alt="Off-road visual" style="width:100%; border-radius:12px; object-fit:cover; max-height:320px;" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Investment Ideas -->
+  <section id="ideas" class="section-pad">
+    <div class="container">
+      <div class="section-head d-flex align-items-end justify-content-between">
+        <h2 class="section-title">Investment Ideas</h2>
+        <a class="link-more" href="#">View All</a>
+      </div>
+      <div class="row g-4 mt-1" id="ideasGrid">
+        <!-- Cards injected by JS with sparkline charts -->
+      </div>
+    </div>
+  </section>
+
+  <!-- About -->
+  <section id="about" class="section-pad">
+    <div class="container">
+      <div class="row align-items-center g-4">
+        <div class="col-lg-4 text-center">
+          <div class="profile-wrapper lg">
+            <img src="static/img/usericon.png" class="profile-pic" alt="Analyst" />
+          </div>
+        </div>
+        <div class="col-lg-8">
+          <h2 class="section-title">About Sharada</h2>
+          <p class="muted">I’m a market research analyst focused on building systematic, data-driven trade ideas across indices and liquid equities. My approach blends market internals, option data, and price structure to craft asymmetric opportunities.</p>
+          <ul class="muted">
+            <li>Tools: TradingView, Python, Node.js, Postgres, Mongo, GSAP</li>
+            <li>Style: Swing-to-position, risk-first, evidence-led</li>
+          </ul>
+          <blockquote class="quote">“Edges come from preparation. Execution turns them into outcomes.”</blockquote>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section id="contact" class="section-pad">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-lg-8">
+          <div class="glass p-4">
+            <h2 class="section-title mb-3">Contact</h2>
+            <form id="contactForm" class="contact-form">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <div class="form-floating glass-input">
+                    <input type="text" id="name" name="name" class="form-control" placeholder="Name" required />
+                    <label for="name">Name</label>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-floating glass-input">
+                    <input type="email" id="email" name="email" class="form-control" placeholder="Email" required />
+                    <label for="email">Email</label>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <div class="form-floating glass-input">
+                    <input type="text" id="subject" name="subject" class="form-control" placeholder="Subject" required />
+                    <label for="subject">Subject</label>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <div class="form-floating glass-input">
+                    <textarea id="message" name="message" class="form-control" placeholder="Message" style="height: 140px" required></textarea>
+                    <label for="message">Message</label>
+                  </div>
+                </div>
+              </div>
+              <div class="text-end mt-3">
+                <button type="submit" class="btn btn-cta" id="sendBtn">
+                  <span class="btn-beam"></span>
+                  Send Message
+                </button>
+              </div>
+              <div id="contactStatus" class="mt-3 small"></div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer-dark">
+    <div class="container py-4 d-flex flex-column flex-md-row align-items-center justify-content-between gap-3">
+      <div class="text-muted">© 2025 Sharada Research. All rights reserved.</div>
+      <form id="newsletterForm" class="newsletter glass d-flex">
+        <input type="email" class="form-control" id="newsletterEmail" placeholder="Subscribe with your email" />
+        <button class="btn btn-ghost ms-2" type="submit">Subscribe</button>
+      </form>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="static/js/jquery_3.7.0.js"></script>
+  <script src="static/js/bootstrap.bundle.min.js"></script>
+
+  <!-- GSAP -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" integrity="sha512-" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" integrity="sha512-" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+  <!-- Chart.js + Financial plugin for candlesticks -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-financial"></script>
+
+  <script src="static/js/analyst_front.js"></script>
+</body>
+</html>

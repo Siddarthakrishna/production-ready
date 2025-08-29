@@ -72,9 +72,11 @@ const FinancialPage = ({ pageName }) => {
   );
 };
 
-// Import the Dashboard component
+// Import the Dashboard components
 import Dashboard from "./components/financial/Dashboard";
 import MainDashboard from "./components/Dashboard";
+import HomeDashboard from "./components/financial/HomeDashboard";
+import DashboardDebug from "./components/financial/DashboardDebug";
 
 function App() {
   return (
@@ -83,8 +85,8 @@ function App() {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/landing" element={<LandingPage />} />
-          <Route path="/dashboard" element={<MainDashboard />} />
-          <Route path="/home" element={<Dashboard />} />
+          <Route path="/dashboard" element={<HomeDashboard />} />
+          <Route path="/home" element={<HomeDashboard />} />
           <Route path="/fii_dii_data" element={<FinancialPage pageName="FII/DII Data" />} />
           <Route path="/fno" element={<FinancialPage pageName="F&O Analysis" />} />
           <Route path="/sectorial_flow" element={<FinancialPage pageName="Sectorial Flow" />} />

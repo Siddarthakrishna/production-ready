@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Test</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #1a1a1a;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+        .test-container {
+            text-align: center;
+            padding: 50px;
+        }
+        .success {
+            color: #4CAF50;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1 class="success">Dashboard Loading Test</h1>
+        <p>If you can see this message, the iframe path is working correctly.</p>
+        <p>Timestamp: <span id="timestamp"></span></p>
+        <div style="margin-top: 30px;">
+            <h3>Next Step: Load Full Dashboard</h3>
+            <button onclick="location.href='home.html'" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                Load Full Dashboard
+            </button>
+        </div>
+    </div>
+    
+    <script>
+        document.getElementById('timestamp').textContent = new Date().toLocaleString();
+        console.log('Dashboard test page loaded successfully');
+        console.log('Current location:', window.location.href);
+    </script>
+</body>
+</html>
