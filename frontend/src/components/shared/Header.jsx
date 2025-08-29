@@ -82,7 +82,7 @@ const Header = () => {
           {/* Desktop CTA Buttons */}
           <div className="hidden lg:flex items-center gap-4">
             <a 
-              href="/dashboard" 
+              href="/financial/home.html" 
               className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-300 transform hover:scale-105 ${scrolled ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-white/10 text-white hover:bg-white/20'}`}
             >
               View Dashboard
@@ -128,13 +128,15 @@ const Header = () => {
               
               {/* Mobile CTA Buttons */}
               <div className="mt-6 pt-6 border-t border-slate-200 space-y-4">
-                <Button 
-                  variant="outline" 
-                  className="w-full border-slate-300 text-slate-700 hover:bg-slate-50"
-                >
-                  <TrendingUp className="w-4 h-4 mr-2" />
-                  View Dashboard
-                </Button>
+                <a href="/financial/home.html" className="w-full">
+                  <Button 
+                    variant="outline" 
+                    className="w-full border-slate-300 text-slate-700 hover:bg-slate-50"
+                  >
+                    <TrendingUp className="w-4 h-4 mr-2" />
+                    View Dashboard
+                  </Button>
+                </a>
                 
                 <Button 
                   className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700"

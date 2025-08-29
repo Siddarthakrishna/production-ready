@@ -1,6 +1,6 @@
-import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import "./App.css";
+import React from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import './App.css';
 
 // Landing page components
 import Header from "./components/shared/Header";
@@ -49,56 +49,48 @@ const LandingPage = () => {
   );
 };
 
-// For the financial application pages, we'll render them directly from the HTML files
-const FinancialPage = ({ pageName }) => {
-  // This is a placeholder - in a real implementation, we would either:
-  // 1. Convert the HTML files to React components
-  // 2. Use dangerouslySetInnerHTML to render the HTML content
-  // 3. Create separate React components for each financial page
-  return (
-    <div className="min-h-screen bg-gray-900">
-      <Header />
-      <div className="container mx-auto px-6 py-20">
-        <h1 className="text-3xl font-bold text-white mb-6">{pageName}</h1>
-        <p className="text-blue-200">
-          This is where the {pageName} financial application page would be displayed.
-        </p>
-        <p className="text-blue-200 mt-4">
-          In a complete implementation, this would show the financial dashboard and tools.
-        </p>
-      </div>
-      <Footer />
-    </div>
-  );
-};
-
-// Import the Dashboard components
 import Dashboard from "./components/financial/Dashboard";
-import MainDashboard from "./components/Dashboard";
-import HomeDashboard from "./components/financial/HomeDashboard";
-import DashboardDebug from "./components/financial/DashboardDebug";
 
 function App() {
   return (
     <div className="App bg-gray-900">
-      <BrowserRouter>
+      <BrowserRouter basename="/">
         <Routes>
+          {/* Landing Page Route */}
           <Route path="/" element={<LandingPage />} />
           <Route path="/landing" element={<LandingPage />} />
-          <Route path="/dashboard" element={<HomeDashboard />} />
-          <Route path="/home" element={<HomeDashboard />} />
-          <Route path="/fii_dii_data" element={<FinancialPage pageName="FII/DII Data" />} />
-          <Route path="/fno" element={<FinancialPage pageName="F&O Analysis" />} />
-          <Route path="/sectorial_flow" element={<FinancialPage pageName="Sectorial Flow" />} />
-          <Route path="/market_depth" element={<FinancialPage pageName="Market Depth" />} />
-          <Route path="/moneyflux" element={<FinancialPage pageName="Money Flux" />} />
-          <Route path="/pro_setup" element={<FinancialPage pageName="Pro Setups" />} />
-          <Route path="/swing_center" element={<FinancialPage pageName="Swing Center" />} />
-          <Route path="/index_analysis" element={<FinancialPage pageName="Index Analysis" />} />
-          <Route path="/scanners" element={<FinancialPage pageName="Scanners" />} />
-          <Route path="/trading_journal" element={<FinancialPage pageName="Trading Journal" />} />
-          <Route path="/watchlist" element={<FinancialPage pageName="Watchlist" />} />
-          <Route path="/ollama_assistant" element={<FinancialPage pageName="Ollama Assistant" />} />
+          
+          {/* Financial Dashboard Routes */}
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/home" element={<Dashboard />} />
+          <Route path="/fii_dii_data" element={<Dashboard />} />
+          <Route path="/fno" element={<Dashboard />} />
+          <Route path="/sectorial_flow" element={<Dashboard />} />
+          <Route path="/market_depth" element={<Dashboard />} />
+          <Route path="/moneyflux" element={<Dashboard />} />
+          <Route path="/pro_setup" element={<Dashboard />} />
+          <Route path="/swing_center" element={<Dashboard />} />
+          <Route path="/index_analysis" element={<Dashboard />} />
+          <Route path="/scanners" element={<Dashboard />} />
+          <Route path="/trading_journal" element={<Dashboard />} />
+          <Route path="/watchlist" element={<Dashboard />} />
+          <Route path="/ollama_assistant" element={<Dashboard />} />
+          
+          {/* Catch-all route for direct HTML access */}
+          <Route path="/financial/:page" element={<Dashboard />} />
+          
+          {/* 404 Route */}
+          <Route path="*" element={
+            <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
+              <div className="text-center">
+                <h1 className="text-4xl font-bold mb-4">404</h1>
+                <p className="text-xl mb-6">Page not found</p>
+                <a href="/" className="text-blue-400 hover:underline">
+                  Go to Home
+                </a>
+              </div>
+            </div>
+          } />
         </Routes>
       </BrowserRouter>
     </div>

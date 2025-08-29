@@ -1,0 +1,20 @@
+{
+  "s": "ok",
+  "code": 200,
+  "message": "",
+  "data": {
+    "fy_id": "FAB27640",
+    "name": "SIDDARTHA K MURTHY",
+    "image": null,
+    "display_name": null,
+    "pin_change_date": "30-06-2025 14:22:33",
+    "email_id": "siddarthakrishna13@gmail.com",
+    "pwd_change_date": null,
+    "PAN": "---------",
+    "mobile_number": "8217294083",
+    "totp": false,
+    "pwd_to_expire": 90,
+    "ddpi_enabled": false,
+    "mtf_enabled": false
+  }
+}
