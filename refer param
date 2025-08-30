@@ -1,158 +1,452 @@
-Here’s the situation:
+A single, consistent way to read all analytics from Sharada Research with combined endpoints per page and a global row format (table.json) that keeps your UI dead simple.
 
-1. Current State of Params
+Base URL
+https://api.sharadaresearch.in
 
-Every module is using local param_0, param_1, … coming from backend responses.
+DRAFT (Quick Start)
+Combined Endpoints (one call per page)
 
-Some files (like swing_center.js) apply additional calculation logic before pushing into frontend charts/tables.
-
-Others (like fii_dii_data.js) reorder/transform values but don’t rename params.
-
-table.json already provides a mapping of param indices → meaning (e.g. param_0 = % Change, param_1 = Volume Spike, etc.).
-
-Right now, each module is duplicating assumptions of what param_0, param_1 mean. This is fragile.
-
-2. What You Asked
-
-You want to:
-
-Keep params as-is (param_0, param_1, …).
-
-Create a global param definition (based on table.json) → so both backend and frontend consume the same dictionary.
-
-Update all modules so they don’t “guess” what each param means, but import/use global param metadata.
-
-Provide this in a README.md for your team + sample before/after JSON transformation.
-
-3. Fix Plan (Global Params System)
-(A) Define Global Params (from table.json)
-
-Create a global_params.json at root:
+Market Depth
+GET https://api.sharadaresearch.in/api/market-depth
+Response:
 
 {
-  "param_0": "Price Change %",
-  "param_1": "Volume Spike",
-  "param_2": "Delivery %",
-  "param_3": "OI Change",
-  "param_4": "Momentum Score",
-  "param_5": "Sector Strength",
-  "param_6": "Relative Flow",
-  "param_7": "Liquidity Sweep",
-  "param_8": "Swing Center",
-  "param_9": "Money Flux"
+  "highpower": [],
+  "intradayBoost": [],
+  "topLevel": [],
+  "lowLevel": [],
+  "gainers": [],
+  "losers": []
 }
 
 
-(Fill this completely from your table.json — above is just sample.)
-
-(B) Backend Enforcement
-
-Whenever backend sends data, it should wrap raw params into unified param dictionary.
-
-Before (Raw JSON):
+Pro Setup
+GET https://api.sharadaresearch.in/api/prosetup
+Response:
 
 {
-  "Symbol": "RELIANCE",
-  "param_0": 1.56,
-  "param_1": 250000,
-  "param_2": 67.5
+  "spike5min": [],
+  "spike10min": [],
+  "bullishDivergence15": [],
+  "bearishDivergence15": [],
+  "bullishDivergence1h": [],
+  "bearishDivergence1h": [],
+  "multiResistance": [],
+  "multiSupport": [],
+  "unusualVolume": []
 }
 
 
-After (Unified JSON):
+F&O OI Analysis
+GET https://api.sharadaresearch.in/api/fno-oi-analysis
+Response:
 
 {
-  "Symbol": "RELIANCE",
-  "params": {
-    "param_0": { "label": "Price Change %", "value": 1.56 },
-    "param_1": { "label": "Volume Spike", "value": 250000 },
-    "param_2": { "label": "Delivery %", "value": 67.5 }
-  }
-}
-
-(C) Frontend Usage
-
-Instead of directly calling value.param_0, frontend should map like:
-
-const { params } = value;
-let priceChange = params.param_0.value;
-let volumeSpike = params.param_1.value;
-
-
-Charts/tables stay unchanged, but now they read from global param dictionary.
-
-(D) Swing Center Calculation
-
-You mentioned you’ve changed the way of calculations for Swing Center.
-✅ Since we now have a global_params.json, you only need to define:
-
-"param_8": "Swing Center (Custom Calculation v2)"
-
-
-and make sure swing_center.js uses that consistently.
-This ensures even custom-calculated params remain globally tagged.
-
-4. README.md for Your Team (Draft)
-# Global Params Integration Guide
-
-## Why
-Currently, each module assumes different meanings for `param_0`, `param_1`, etc.  
-This causes mismatches between backend and frontend.  
-We now unify all params via a single `global_params.json`.
-
----
-
-## Global Param Dictionary
-Defined in: `/config/global_params.json`
-
-Example:
-
-```json
-{
-  "param_0": "Price Change %",
-  "param_1": "Volume Spike",
-  "param_2": "Delivery %",
-  "param_3": "OI Change",
-  "param_4": "Momentum Score",
-  "param_5": "Sector Strength",
-  "param_6": "Relative Flow",
-  "param_7": "Liquidity Sweep",
-  "param_8": "Swing Center (v2 Calculation)",
-  "param_9": "Money Flux"
+  "openInterestGainers": [],
+  "openInterestLosers": [],
+  "longBuildUp": [],
+  "shortBuildUp": [],
+  "longUnwinding": [],
+  "shortCovering": []
 }
 
 
-This file is the single source of truth.
+Swing Center
+GET https://api.sharadaresearch.in/api/swing
+Response:
 
-Data Transformation
-Before (Raw Response from API)
 {
-  "Symbol": "RELIANCE",
-  "param_0": 1.56,
-  "param_1": 250000,
-  "param_2": 67.5
+  "advDec": {},
+  "studyMajorIndexWeeklyPerformance": {},
+  "shortTermBullish": [],
+  "shortTermBearish": [],
+  "longTermBullish": [],
+  "longTermBearish": []
 }
 
-After (Unified Response)
+
+Money Flux
+GET https://api.sharadaresearch.in/api/money-flux
+Response:
+
 {
-  "Symbol": "RELIANCE",
-  "params": {
-    "param_0": { "label": "Price Change %", "value": 1.56 },
-    "param_1": { "label": "Volume Spike", "value": 250000 },
-    "param_2": { "label": "Delivery %", "value": 67.5 }
-  }
+  "heatmap": {},
+  "enhancedHeatmap": {},
+  "chartPatterns": {},
+  "runningExpiry": {}
 }
 
-Backend Task
 
-Ensure every API wraps raw values into the unified format before sending to frontend.
+Index Analysis
+GET https://api.sharadaresearch.in/api/index-analysis
+Response:
 
-Use global_params.json to attach correct labels.
+{
+  "indexAnalysis": {},
+  "liveOi": {},
+  "comprehensiveOptionAnalysis": {}
+}
 
-Frontend Task
 
-Replace value.param_0 with value.params.param_0.value
+Sectorial Flow
+GET https://api.sharadaresearch.in/api/sector
+Response:
 
-Render tooltips/headers using value.params.param_0.label
+{
+  "heatmapSectors": [],
+  "heatmapStocks": {},
+  "summary": {}
+}
 
-All charts (swing_center.js, sectorial_flow.js, scanner.js, etc.) should reference the unified param dictionary.
+
+FII/DII
+GET https://api.sharadaresearch.in/api/fii-dii
+Response:
+
+{
+  "net": {},
+  "breakdown": {}
+}
+
+
+Every array in the payload must use the global row format below.
+
+FINAL (Production Spec)
+1) Global Row Format (table.json)
+
+All list-type results (tables) across modules MUST use this normalized format:
+
+Minimal format (screenshot style):
+
+{
+  "status": "success",
+  "data": [
+    { "Symbol": "TATAPOWER", "param_0": 374.45, "param_1": 371.1, "param_2": 0.9, "param_3": 0.15 },
+    { "Symbol": "MARICO", "param_0": 726, "param_1": 711.6, "param_2": 2.02, "param_3": 0.14 }
+  ]
+}
+
+
+Preferred extended format (same keys, adds meaning via meta):
+
+{
+  "status": "success",
+  "meta": {
+    "columns": [
+      { "key": "Symbol",  "label": "Symbol",          "type": "string" },
+      { "key": "param_0", "label": "Last Price",      "type": "number", "unit": "₹" },
+      { "key": "param_1", "label": "Prev Close",      "type": "number", "unit": "₹" },
+      { "key": "param_2", "label": "Change %",        "type": "percent" },
+      { "key": "param_3", "label": "OI Change %",     "type": "percent" }
+    ]
+  },
+  "data": [
+    { "Symbol": "TATAPOWER", "param_0": 374.45, "param_1": 371.1, "param_2": 0.9, "param_3": 0.15 },
+    { "Symbol": "MARICO",    "param_0": 726.00, "param_1": 711.6, "param_2": 2.02,"param_3": 0.14 }
+  ]
+}
+
+
+Rules
+
+Keys are exactly: "Symbol", "param_0", "param_1", "param_2", "param_3".
+If a module needs more numbers, add param_4, param_5, … (UI stays generic).
+Always return "status" and "data"; include "meta" when helpful.
+If no rows: "data": []. Never omit arrays/keys.
+2) Combined Endpoints (Exact Paths & Payloads)
+2.1 Market Depth (single shot)
+
+GET https://api.sharadaresearch.in/api/market-depth
+Query: ?include=highpower,intradayBoost&limit=50 (optional)
+Response
+
+{
+  "highpower":   { "status": "success", "data": [ { "Symbol":"ABC", "param_0":0, "param_1":0, "param_2":0, "param_3":0 } ] },
+  "intradayBoost": { "status": "success", "data": [] },
+  "topLevel":    { "status": "success", "data": [] },
+  "lowLevel":    { "status": "success", "data": [] },
+  "gainers":     { "status": "success", "data": [] },
+  "losers":      { "status": "success", "data": [] },
+  "errors": { }  // optional; when some slices fail
+}
+
+
+Deliverable example:
+GET https://api.sharadaresearch.in/api/market-depth → returns JSON exactly as above (with table.json rows inside each key).
+
+2.2 Pro Setup (single shot)
+
+GET https://api.sharadaresearch.in/api/prosetup
+Query: ?include=spike5min,unusualVolume&limit=100 (optional)
+Response
+
+{
+  "spike5min":            { "status": "success", "data": [] },
+  "spike10min":           { "status": "success", "data": [] },
+  "bullishDivergence15":  { "status": "success", "data": [] },
+  "bearishDivergence15":  { "status": "success", "data": [] },
+  "bullishDivergence1h":  { "status": "success", "data": [] },
+  "bearishDivergence1h":  { "status": "success", "data": [] },
+  "multiResistance":      { "status": "success", "data": [] },
+  "multiSupport":         { "status": "success", "data": [] },
+  "unusualVolume":        { "status": "success", "data": [] },
+  "errors": { }
+}
+
+2.3 F&O OI Analysis (single shot)
+
+GET https://api.sharadaresearch.in/api/fno-oi-analysis?segment=FO&limit=50
+Response
+
+{
+  "openInterestGainers": { "status": "success", "data": [] },
+  "openInterestLosers":  { "status": "success", "data": [] },
+  "longBuildUp":         { "status": "success", "data": [] },
+  "shortBuildUp":        { "status": "success", "data": [] },
+  "longUnwinding":       { "status": "success", "data": [] },
+  "shortCovering":       { "status": "success", "data": [] }
+}
+
+2.4 Swing Center
+
+GET https://api.sharadaresearch.in/api/swing?count=20
+Response
+
+{
+  "advDec": { "status": "success", "data": [ { "Symbol": "NIFTY", "param_0": 120, "param_1": 80, "param_2": 10, "param_3": 0 } ] },
+  "studyMajorIndexWeeklyPerformance": { "status": "success", "data": [] },
+  "shortTermBullish": { "status": "success", "data": [] },
+  "shortTermBearish": { "status": "success", "data": [] },
+  "longTermBullish":  { "status": "success", "data": [] },
+  "longTermBearish":  { "status": "success", "data": [] }
+}
+
+2.5 Money Flux
+
+GET https://api.sharadaresearch.in/api/money-flux
+Response
+
+{
+  "heatmap":          { "status": "success", "data": [] },
+  "enhancedHeatmap":  { "status": "success", "data": [] },
+  "chartPatterns":    { "status": "success", "data": [] },
+  "runningExpiry":    { "status": "success", "data": [] }
+}
+
+2.6 Index Analysis
+
+GET https://api.sharadaresearch.in/api/index-analysis
+Response
+
+{
+  "indexAnalysis":               { "status": "success", "data": [] },
+  "liveOi":                      { "status": "success", "data": [] },
+  "comprehensiveOptionAnalysis": { "status": "success", "data": [] }
+}
+
+2.7 Sectorial Flow
+
+GET https://api.sharadaresearch.in/api/sector
+Response
+
+{
+  "heatmapSectors": { "status": "success", "data": [] },
+  "heatmapStocks":  { "status": "success", "data": [] },
+  "summary":        { "status": "success", "data": [] }
+}
+
+2.8 FII/DII
+
+GET https://api.sharadaresearch.in/api/fii-dii
+Response
+
+{
+  "net":       { "status": "success", "data": [] },
+  "breakdown": { "status": "success", "data": [] }
+}
+
+3) Services & Backend Files (Structure)
+src/
+  routes/
+    marketDepth.js        // builds combined market-depth payload
+    prosetup.js
+    fnoOiAnalysis.js
+    swing.js
+    moneyFlux.js
+    indexAnalysis.js
+    sector.js
+    fiiDii.js
+  services/
+    marketDepthService.js // returns arrays in table.json format
+    prosetupService.js
+    fnoOiService.js
+    swingService.js
+    moneyFluxService.js
+    indexService.js
+    sectorService.js
+    fiiDiiService.js
+  workers/
+    snapshotWorker.js     // refreshes cached snapshots per module
+  lib/
+    cache.js              // Redis/Mem cache wrapper
+    logger.js
+    http.js               // axios wrapper with retries/backoff
+    validation.js         // zod/joi schemas for query params
+  db/
+    models/               // ORM/ODM models (sequelize/mongoose)
+    migrations/           // SQL migrations
+
+
+Route pattern (example: Market Depth)
+Accepts ?include= and ?limit=.
+Calls service functions in parallel.
+Always returns all keys; missing slice ⇒ empty data: [].
+Adds "errors" object if some slices failed
+Caches the assembled payload (TTL 10–30s).
+Service pattern (all modules)
+Each function returns { status, data, meta? } where data is table.json rows.
+Use lib/http to fetch raw vendors (FYERS etc.).
+Normalize to Symbol/param_0/param_1/param_2/param_3.
+4) Database Schemas
+
+Use either Postgres/MySQL (migrations) or MongoDB. Two recommended patterns:
+
+A. Snapshot tables (SQL)
+
+CREATE TABLE snapshot_market_depth (
+  id BIGSERIAL PRIMARY KEY,
+  key TEXT NOT NULL,             -- 'highpower' | 'gainers' | ...
+  payload JSONB NOT NULL,        -- { status:'success', data:[{Symbol,...}] }
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE INDEX ON snapshot_market_depth (key, created_at DESC);
+
+B. Snapshot collections (Mongo)
+
+{
+  _id: ObjectId,
+  module: "market-depth",
+  key: "highpower",
+  payload: { status: "success", data: [ { Symbol, param_0, param_1, param_2, param_3 } ] },
+  ts: ISODate()
+}
+
+Why snapshots
+Endpoints read a pre-built snapshot → ultra-fast responses. A worker refreshes snapshots every N seconds.
+5) Worker (snapshot refresh)
+File: workers/snapshotWorker.js
+Schedule:
+Market Depth & Pro Setup: every 15–30s
+F&O OI Analysis: every 30–60s
+Money Flux, Index Analysis: 1–5 min
+Sector, Swing, FII/DII: 5–15 min (or on demand)
+Algorithm (per slice)
+Pull raw vendor data.
+Compute metrics/params.
+Normalize rows to table.json.
+Persist snapshot (DB) and set Redis key snapshot:<module>:<key>.
+6) Utils & Infra
+Cache: Redis keys like snapshot:market-depth:highpower. TTL = 30–60s (or aligned to worker cadence).
+ETag/304: Hash JSON payload and return ETag. If If-None-Match matches, return 304.
+Rate limit & retries: lib/http wraps axios with retry (3x) + exponential backoff.
+Validation: lib/validation (zod or joi) validates query (include, limit, segment).
+Logging: lib/logger with trace ids per request.
+
+7) Example Responses (Fully Realistic)
+7.1 Market Depth (deliverable)
+
+GET https://api.sharadaresearch.in/api/market-depth
+
+{
+  "highpower": {
+    "status": "success",
+    "data": [
+      { "Symbol": "TATAPOWER", "param_0": 374.45, "param_1": 371.1, "param_2": 0.9,  "param_3": 0.15 },
+      { "Symbol": "LT",        "param_0": 3605,    "param_1": 3560.1,"param_2": 1.26,"param_3": 0.22 }
+    ]
+  },
+  "intradayBoost": { "status": "success", "data": [] },
+  "topLevel":      { "status": "success", "data": [] },
+  "lowLevel":      { "status": "success", "data": [] },
+  "gainers":       { "status": "success", "data": [] },
+  "losers":        { "status": "success", "data": [] }
+}
+
+7.2 Pro Setup (deliverable)
+
+GET https://api.sharadaresearch.in/api/prosetup
+
+{
+  "spike5min":           { "status": "success", "data": [ { "Symbol": "SBICARD", "param_0": 804.1, "param_1": 803.6, "param_2": 0.06, "param_3": 0.26 } ] },
+  "spike10min":          { "status": "success", "data": [] },
+  "bullishDivergence15": { "status": "success", "data": [] },
+  "bearishDivergence15": { "status": "success", "data": [] },
+  "bullishDivergence1h": { "status": "success", "data": [] },
+  "bearishDivergence1h": { "status": "success", "data": [] },
+  "multiResistance":     { "status": "success", "data": [] },
+  "multiSupport":        { "status": "success", "data": [] },
+  "unusualVolume":       { "status": "success", "data": [] }
+}
+
+8) Rollout Plan
+
+Implement services to output table.json.
+
+Worker populates snapshots every N seconds.
+
+Routes assemble combined payloads from snapshots (fast) with optional ?include= & ?limit=.
+
+Cache + ETag to reduce bandwidth.
+
+Backfill legacy endpoints to internally call unified services (optional), then deprecate.
+
+9) Error/Partial Strategy
+
+If a slice fails, still return the object with:
+
+{
+  "gainers": { "status": "success", "data": [] },
+  "errors":  { "gainers": "timeout" }
+}
+
+
+HTTP status stays 200 to keep dashboards rendering. Use server logs/alerts for failures.
+
+10) Security
+All read endpoints require at least API key or JWT if behind portal.
+Admin/auth remains under /api/admin/... and is not part of unified combined routes.
+CORS: allow origins for your web apps only.
+Appendix — Reference (Direct Raw Endpoints)
+These still exist for internal/legacy uses. Use combined endpoints for dashboards.
+
+Swing Center
+/swing/adv-dec/NIFTY • /swing/adv-dec/FO • /swing/study/data/MAJOR%20INDEX%20WEEKLY%20PERFORMANCE • /swing/study/symbol/short-term-bullish?count=20 • /swing/study/symbol/short-term-bearish?count=20 • /swing/study/symbol/long-term-bullish?count=20 • /swing/study/symbol/long-term-bearish?count=20
+
+Money Flux
+/money_flux/heatmap/{INDEX} • /money_flux/get_running_expiry • /money_flux/chart-patterns/{INDEX} • /money_flux/enhanced-heatmap/{INDEX}
+
+Index Analysis
+/index_analysis/index_analysis/{INDEX} • /index_analysis/get_running_expiry • /index_analysis/live_oi?index={INDEX} • /index/{INDEX}/comprehensive-option-analysis
+
+Market Depth
+/market-depth/highpower • /market-depth/intraday-boost • /market-depth/top-level • /market-depth/low-level • /market-depth/gainers • /market-depth/losers
+
+Pro Setup
+/pro/spike/5min • /pro/spike/10min • /pro/bullish-divergence/15 • /pro/bearish-divergence/15 • /pro/bullish-divergence/1h • /pro/bearish-divergence/1h • /pro/multi-resistance • /pro/multi-support • /pro/unusual-volume
+
+Scanner
+POST /unified/fetch_hd_data_fno • POST /unified/fetch_hd_data_n500 • POST /unified/fetch_dsp_data_fno • POST /unified/fetch_dsp_data_n500 • GET /unified/hd_hist
+
+Sectorial Flow
+Legacy: /sector/heatmap, /sector/{SECTOR}
+Enhanced: /sector/heatmap/sectors[?sector_filter=...], /sector/heatmap/stocks/{INDEX}, /sector/heatmap/stocks, /sector/summary
+
+FII/DII
+/fii-dii/net • /fii-dii/breakdown
+
+F&O
+/fno/{SYMBOL}/expiry • /fno/{SYMBOL}/oi • /fno/{SYMBOL}/option-chain • /fno/{SYMBOL}/relative-factor • /fno/{SYMBOL}/signal • /fno/heatmap
+
+Utility/Auth
+/current?type=servertime • POST /api/admin/auth/login • POST /api/admin/auth/logout • GET /api/admin

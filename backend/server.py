@@ -72,8 +72,13 @@ routers_to_include = [
     ('app.api.money_flux', 'money_flux_router'),
     ('app.api.fno', 'fno_router'),
     ('app.api.sector', 'sector_router'),
-    ('app.api.market_depth', 'market_depth_router'),
-    ('app.api.pro_setup', 'pro_setup_router'),
+    ('app.api.market_depth', 'router'),  
+    ('app.api.pro_setup', 'router'),     
+    ('app.api.fno_oi_analysis', 'router'),
+    ('app.api.index_analysis', 'router'),  
+    ('app.api.scanners', 'router'),  
+    ('app.api.sectorial_view', 'router'),  # Add Sectorial View router
+    ('app.api.sector_heatmaps', 'router'),  # Add Sector Heatmaps router
     ('app.api.swing', 'swing_router'),
     ('app.api.journal', 'journal_router'),
     ('app.api.watchlist', 'watchlist_router'),
