@@ -71,42 +71,7 @@ const Footer = () => {
               </ul>
             </div>
 
-            {/* Services */}
-            <div>
-              <h4 className="text-xl font-bold mb-6">Services</h4>
-              <ul className="space-y-3">
-                <li>
-                  <a href="/fii_dii_data.html" className="text-blue-200 hover:text-white transition-colors duration-300 flex items-center group">
-                    <span className="w-0 group-hover:w-2 h-px bg-cyan-400 transition-all duration-300 mr-0 group-hover:mr-2"></span>
-                    FII/DII Analysis
-                  </a>
-                </li>
-                <li>
-                  <a href="/fno.html" className="text-blue-200 hover:text-white transition-colors duration-300 flex items-center group">
-                    <span className="w-0 group-hover:w-2 h-px bg-cyan-400 transition-all duration-300 mr-0 group-hover:mr-2"></span>
-                    F&O Analysis
-                  </a>
-                </li>
-                <li>
-                  <a href="/sectorial_flow.html" className="text-blue-200 hover:text-white transition-colors duration-300 flex items-center group">
-                    <span className="w-0 group-hover:w-2 h-px bg-cyan-400 transition-all duration-300 mr-0 group-hover:mr-2"></span>
-                    Sector Analysis
-                  </a>
-                </li>
-                <li>
-                  <a href="/market_depth.html" className="text-blue-200 hover:text-white transition-colors duration-300 flex items-center group">
-                    <span className="w-0 group-hover:w-2 h-px bg-cyan-400 transition-all duration-300 mr-0 group-hover:mr-2"></span>
-                    Market Depth
-                  </a>
-                </li>
-                <li>
-                  <a href="/moneyflux.html" className="text-blue-200 hover:text-white transition-colors duration-300 flex items-center group">
-                    <span className="w-0 group-hover:w-2 h-px bg-cyan-400 transition-all duration-300 mr-0 group-hover:mr-2"></span>
-                    Money Flux
-                  </a>
-                </li>
-              </ul>
-            </div>
+           
           </div>
         </div>
 

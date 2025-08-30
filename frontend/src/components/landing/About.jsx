@@ -31,7 +31,7 @@ const About = () => {
             <div className="about-details">
               <div className="detail-item">
                 <h4>Tools & Technologies</h4>
-                <p>TradingView, Python, Node.js, Postgres, MongoDB, GSAP</p>
+                <p>TradingView, Python, Node.js, Postgres,</p>
               </div>
               
               <div className="detail-item">
@@ -47,9 +47,6 @@ const About = () => {
             <div className="cta-buttons">
               <a href="#contact" className="btn btn-cta">
                 Contact Me
-              </a>
-              <a href="#" className="btn btn-ghost">
-                Download CV
               </a>
             </div>
           </div>

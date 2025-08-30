@@ -27,11 +27,7 @@ const Header = () => {
   const navItems = [
     { label: 'Home', href: '#home' },
     { label: 'About', href: '#about' },
-    { label: 'Skills', href: '#skills' },
-    { label: 'Professional', href: '#professional' },
     { label: 'Research', href: '#research' },
-    { label: 'Passion', href: '#passion' },
-    { label: 'Testimonials', href: '#testimonials' },
     { label: 'Contact', href: '#contact' }
   ];
 
@@ -83,7 +79,7 @@ const Header = () => {
           {/* Desktop CTA Buttons */}
           <div className="hidden lg:flex items-center gap-4">
             <a 
-              href="http://your-sharadaresearch-domain.com" 
+              href="#http://your-sharadaresearch-domain.com" 
               target="_blank" 
               rel="noopener noreferrer"
               className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-300 transform hover:scale-105 ${scrolled ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-white/10 text-white hover:bg-white/20'}`}
