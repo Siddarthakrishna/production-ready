@@ -20,33 +20,83 @@ let Change_CE_OI = 0, Change_PE_OI = 0;
 let ts1 = 0, ts2 = 0;
 let c_chart, chart1, chart2, bar_chart;
 
-// Backend API wrapper for F&O endpoints
+// Backend API wrapper for F&O endpoints - Updated for Unified API
 const FnoAPI = {
-  // Try backend heatmap first; fallback to empty data if not available yet
+  // Updated to use unified endpoints
   heatmap: () => {
-    return fetch('http://localhost:8000/api/stocks/fno/heatmap', { credentials: 'include' })
-      .then(r => { if (!r.ok) throw new Error('no heatmap'); return r.json(); })
-      .catch(() => ({ data: [], ts: null }));
+    return fetch(window.buildApiUrl('/api/fno/heatmap'), { 
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+      }
+    })
+      .then(r => { 
+        if (!r.ok) throw new Error(`HTTP ${r.status}: ${r.statusText}`);
+        return r.json(); 
+      })
+      .catch((err) => {
+        console.warn('Heatmap API error:', err);
+        return { data: [], ts: null };
+      });
   },
+  
+  // Updated endpoints for unified API
   getExpiry: (script) => {
-    return $.post('/api/stocks/fno/get_running_expiry', { script });
+    return $.post(window.buildApiUrl('/api/fno/get_running_expiry'), { script });
   },
+  
   liveOI: (script, exp) => {
-    return $.post('/api/stocks/fno/live_oi', { script, exp });
+    return $.post(window.buildApiUrl('/api/fno/live_oi'), { script, exp });
   },
+  
   oiChange: (ts1, ts2, script, exp) => {
-    return $.post('/api/stocks/fno/index_analysis', { ts1, ts2, script, exp });
+    return $.post(window.buildApiUrl('/api/fno/index_analysis'), { ts1, ts2, script, exp });
+  },
+  
+  // New unified endpoints for FNO signals
+  getBullishSignals: () => {
+    return fetch(window.buildApiUrl('/api/fno/signals/bullish'), {
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+      }
+    })
+      .then(r => r.ok ? r.json() : Promise.reject(`HTTP ${r.status}`))
+      .catch(() => ({ status: 'error', data: [] }));
+  },
+  
+  getBearishSignals: () => {
+    return fetch(window.buildApiUrl('/api/fno/signals/bearish'), {
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+      }
+    })
+      .then(r => r.ok ? r.json() : Promise.reject(`HTTP ${r.status}`))
+      .catch(() => ({ status: 'error', data: [] }));
   }
 };
 
-// Fetch F&O Heatmap (all symbols with sector info)
-// Expected response shape (example): { data: [{ Symbol: 'RELIANCE', sector: 'Energy', param_0: 1.25 }, ...], ts: 1690000000 }
+// Enhanced F&O data processing with unified param format
 function call_FNO_HeatMap_API() {
   return FnoAPI.heatmap().then((res) => {
     const rows = res && res.data ? res.data : [];
+    
+    // Process unified param format: Symbol, param_0 (LTP), param_1 (prev_close), param_2 (% change), param_3 (R-Factor), param_4 (DateTime)
     HeatMap = rows
-      .filter((r) => typeof r.param_0 === 'number' && r.Symbol)
-      .map((r) => ({ symbol: r.Symbol, sector: r.sector || 'Others', value: r.param_0 }));
+      .filter((r) => typeof r.param_2 === 'number' && r.Symbol) // Use param_2 for % change
+      .map((r) => ({ 
+        symbol: r.Symbol, 
+        sector: r.sector || 'Others', 
+        value: r.param_2, // % change for heatmap coloring
+        ltp: r.param_0,   // Current price
+        prevClose: r.param_1, // Previous close
+        rFactor: r.param_3,   // R-Factor/momentum
+        timestamp: r.param_4  // DateTime
+      }));
 
     // Build sector lists
     SectorToSymbols = {};
@@ -70,6 +120,19 @@ function call_FNO_HeatMap_API() {
     if (ts) {
       $('#lastUpdated').text(`Last Updated: ${moment.unix(ts).utcOffset('+5:30').format('DD MMM, HH:mm')}`);
     }
+
+    // Populate stocks dropdown from current sector
+    populateStockFilter($('#SectorFilter').val() || 'ALL');
+
+    return HeatMap;
+  }).catch((err) => {
+    logger && logger.error ? logger.error(err) : console.error(err);
+    HeatMap = [];
+    SectorList = [];
+    SectorToSymbols = {};
+    return [];
+  });
+}
 
 // ============================
 // UX helpers
@@ -461,4 +524,96 @@ $(document).ready(function () {
       renderHeatmap(current);
     });
   }, 180000);
+
+  // Initialize F&O signals if tables exist
+  if ($('#bullishTable').length || $('#bearishTable').length) {
+    loadFNOSignalsData();
+    // Auto-refresh signals every 5 minutes
+    setInterval(loadFNOSignalsData, 300000);
+  }
 });
+
+// ============================
+// Enhanced F&O Signals Integration
+// ============================
+
+// Function to load F&O signals data
+async function loadFNOSignalsData() {
+  try {
+    // Update last updated time
+    const now = new Date();
+    $('#last-updated').text(`Last updated: ${now.toLocaleTimeString()}`);
+
+    // Load bullish and bearish signals in parallel
+    const [bullishData, bearishData] = await Promise.all([
+      FnoAPI.getBullishSignals(),
+      FnoAPI.getBearishSignals()
+    ]);
+
+    if (bullishData.status === 'success') {
+      updateSignalsTable('bullishTable', bullishData.data);
+      
+      // Update market sentiment if available
+      if (bullishData.sentiment) {
+        updateSentiment(bullishData.sentiment);
+      }
+    }
+
+    if (bearishData.status === 'success') {
+      updateSignalsTable('bearishTable', bearishData.data);
+    }
+
+  } catch (error) {
+    console.error('Error loading F&O signals data:', error);
+    showError('Error loading F&O signals data. Please try again later.');
+  }
+}
+
+// Function to update signals table with unified param data
+function updateSignalsTable(tableId, data) {
+  const table = $(`#${tableId}`).DataTable();
+  
+  if (!table) {
+    console.warn(`Table ${tableId} not found`);
+    return;
+  }
+  
+  // Clear existing data
+  table.clear();
+  
+  // Add new data with unified param structure
+  data.forEach(item => {
+    table.row.add([
+      item.Symbol || item.symbol,     // Symbol
+      item.param_0 || item.ltp,       // LTP (param_0)
+      item.param_1 || item.prevClose, // Previous Close (param_1)
+      `${(item.param_2 || 0).toFixed(2)}%`, // % Change (param_2)
+      item.param_3 || item.rFactor || 0,    // R-Factor/Score (param_3)
+      item.param_4 || item.timestamp || new Date().toLocaleString() // DateTime (param_4)
+    ]);
+  });
+  
+  // Redraw the table
+  table.draw();
+}
+
+// Function to update market sentiment
+function updateSentiment(sentiment) {
+  if (sentiment && sentiment.overall) {
+    $('#market-sentiment').text(sentiment.overall);
+    $('#market-sentiment').removeClass('text-success text-danger text-warning')
+      .addClass(sentiment.overall === 'Bullish' ? 'text-success' : 
+               sentiment.overall === 'Bearish' ? 'text-danger' : 'text-warning');
+  }
+}
+
+// Function to show error messages
+function showError(message) {
+  const errorDiv = $('#error-message');
+  if (errorDiv.length) {
+    errorDiv.text(message).show();
+    setTimeout(() => errorDiv.hide(), 5000);
+  } else {
+    console.error(message);
+  }
+}

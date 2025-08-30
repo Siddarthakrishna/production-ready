@@ -52,7 +52,13 @@ function Dashboard() {
   const navigate = useNavigate();
 
   const navigateToStaticPage = (page) => {
+    // Navigate to financial pages with proper routing
     window.location.href = `/financial/${page}.html`;
+  };
+
+  const navigateToReactDashboard = () => {
+    // Navigate back to React dashboard
+    window.location.href = '/dashboard';
   };
 
   return (

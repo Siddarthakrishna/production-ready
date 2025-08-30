@@ -298,15 +298,30 @@
 
   <!-- F&O Signals Section -->
   <div class="container-fluid px-0">
+    
+    <!-- Error Message Container -->
+    <div id="error-message" class="alert alert-danger mx-3" style="display: none;"></div>
+    
+    <!-- Market Sentiment Indicator -->
+    <div class="row mx-2 mb-3">
+      <div class="col-12">
+        <div class="bg-color text-light rounded p-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Market Sentiment: <span id="market-sentiment" class="text-warning">Loading...</span></h5>
+            <small id="last-updated" class="text-muted">Loading...</small>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <div class="row mx-0">
       <!-- Bullish Signals -->
       <div class="col-md-6 px-2 mb-4">
         <div class="bg-color text-light rounded h-100">
           <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
-            <h5 class="mb-0 font-weight-bold">BULLISH SIGNALS <span class="badge bg-success">ACTIVE</span></h5>
+            <h5 class="mb-0 font-weight-bold">BULLISH SIGNALS <span class="badge bg-success">LIVE</span></h5>
             <div style="width: 200px;">
-              <input type="text" id="bullishFilter" class="form-control form-control-sm bg-dark text-white border-0" placeholder="Search...">
+              <input type="text" id="bullishFilter" class="form-control form-control-sm bg-dark text-white border-0" placeholder="Search symbols...">
             </div>
           </div>
           <div class="table-responsive">
@@ -314,16 +329,19 @@
               <thead class="thead-dark">
                 <tr>
                   <th>Symbol</th>
-                  <th class="text-end">Price %</th>
-                  <th class="text-end">OI %</th>
-                  <th class="text-end">Vol Ratio</th>
-                  <th class="text-end">Rel Str</th>
-                  <th class="text-end">Score</th>
+                  <th class="text-end">LTP</th>
+                  <th class="text-end">Prev Close</th>
+                  <th class="text-end">% Change</th>
+                  <th class="text-end">R-Factor</th>
+                  <th class="text-end">Updated</th>
                 </tr>
               </thead>
               <tbody id="bullishBody">
                 <tr>
-                  <td colspan="6" class="text-center py-3">Loading data...</td>
+                  <td colspan="6" class="text-center py-4">
+                    <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                    Loading unified F&O data...
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -335,9 +353,9 @@
       <div class="col-md-6 px-2 mb-4">
         <div class="bg-color text-light rounded h-100">
           <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
-            <h5 class="mb-0 font-weight-bold">BEARISH SIGNALS <span class="badge bg-danger">ACTIVE</span></h5>
+            <h5 class="mb-0 font-weight-bold">BEARISH SIGNALS <span class="badge bg-danger">LIVE</span></h5>
             <div style="width: 200px;">
-              <input type="text" id="bearishFilter" class="form-control form-control-sm bg-dark text-white border-0" placeholder="Search...">
+              <input type="text" id="bearishFilter" class="form-control form-control-sm bg-dark text-white border-0" placeholder="Search symbols...">
             </div>
           </div>
           <div class="table-responsive">
@@ -345,16 +363,19 @@
               <thead class="thead-dark">
                 <tr>
                   <th>Symbol</th>
-                  <th class="text-end">Price %</th>
-                  <th class="text-end">OI %</th>
-                  <th class="text-end">Vol Ratio</th>
-                  <th class="text-end">Rel Str</th>
-                  <th class="text-end">Score</th>
+                  <th class="text-end">LTP</th>
+                  <th class="text-end">Prev Close</th>
+                  <th class="text-end">% Change</th>
+                  <th class="text-end">R-Factor</th>
+                  <th class="text-end">Updated</th>
                 </tr>
               </thead>
               <tbody id="bearishBody">
                 <tr>
-                  <td colspan="6" class="text-center py-3">Loading data...</td>
+                  <td colspan="6" class="text-center py-4">
+                    <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                    Loading unified F&O data...
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -381,8 +402,9 @@
   <script src="static/js/all.min.js"></script>
   <script src="static/js/gg.min.js"></script>
   <script src="static/js/vertical_navbar_js.js"></script>
+  <script src="static/js/dataTables.min.js"></script> <!-- Add DataTables -->
   <script src="static/js/fno_data_loader.js"></script>
-  <script src="static/js/fno.js"></script>
+  <script src="static/js/fno.js"></script> <!-- Enhanced with Unified API -->
   
   <!-- Fyers Integration -->
   <script src="static/js/fyers_integration.js"></script>
@@ -421,33 +443,62 @@
   </script>
   
   <script>
-    // F&O Signals JavaScript
+    // Enhanced F&O Signals JavaScript with Unified API Integration
     $(document).ready(function() {
-      // Initialize DataTables
+      // Initialize DataTables with unified parameter format
       const bullishTable = $('#bullishTable').DataTable({
-        paging: false,
+        paging: true,
+        pageLength: 25,
         searching: true,
-        info: false,
-        order: [[5, 'desc']], // Sort by score descending
+        info: true,
+        order: [[4, 'desc']], // Sort by R-Factor (param_3) descending
         columnDefs: [
-          { targets: [1, 2, 3, 4, 5], className: 'text-center' }
-        ]
+          { targets: [1, 2, 3, 4], className: 'text-end' }, // Right align numbers
+          { targets: 0, className: 'font-weight-bold symbol-clickable' } // Make symbols clickable
+        ],
+        language: {
+          emptyTable: "No bullish F&O signals available",
+          loadingRecords: "Loading unified F&O data...",
+          search: "Filter symbols:"
+        }
       });
 
       const bearishTable = $('#bearishTable').DataTable({
-        paging: false,
+        paging: true,
+        pageLength: 25,
         searching: true,
-        info: false,
-        order: [[5, 'desc']], // Sort by score descending
+        info: true,
+        order: [[4, 'desc']], // Sort by R-Factor (param_3) descending
         columnDefs: [
-          { targets: [1, 2, 3, 4, 5], className: 'text-center' }
-        ]
+          { targets: [1, 2, 3, 4], className: 'text-end' }, // Right align numbers
+          { targets: 0, className: 'font-weight-bold symbol-clickable' } // Make symbols clickable
+        ],
+        language: {
+          emptyTable: "No bearish F&O signals available",
+          loadingRecords: "Loading unified F&O data...",
+          search: "Filter symbols:"
+        }
       });
 
-      // Filter inputs
+      // Filter inputs for custom search
       $('#bullishFilter').on('keyup', function() {
         bullishTable.search(this.value).draw();
       });
+
+      $('#bearishFilter').on('keyup', function() {
+        bearishTable.search(this.value).draw();
+      });
+
+      // Error handling for API failures
+      $(document).ajaxError(function(event, jqXHR, ajaxSettings, thrownError) {
+        if (ajaxSettings.url.includes('/api/fno/')) {
+          showError(`API Error: ${jqXHR.status} - ${thrownError}. Please check your connection.`);
+        }
+      });
+
+      console.log('F&O page initialized with Unified API integration');
+    });
+  </script>
 
       $('#bearishFilter').on('keyup', function() {
         bearishTable.search(this.value).draw();
